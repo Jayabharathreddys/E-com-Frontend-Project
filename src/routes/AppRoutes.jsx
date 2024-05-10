@@ -11,7 +11,7 @@ import urlConfig from '../utils/urlConfig';
 import useAuth from '../context/auth/useAuth';
 const AppRoutes = () => {
 
-  const {data: categories, error, isLoading } = useFetchData('https://fakestoreapi.com/products/categories', []);
+  const {data: categories, error, isLoading } = useFetchData('https://may24backend.onrender.com/api/product/categories', []);
 
   console.log(categories);
 
