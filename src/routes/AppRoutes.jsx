@@ -24,8 +24,8 @@ const AppRoutes = () => {
       {/* <Loader /> */}
         <Router>
           
-            { user && user.status ? <Header categories={categories.data} isLoading={isLoading}/> : <></>} 
-            {/* <Header categories={categories.data} isLoading={isLoading}/> */}
+            {/* { user && user.status ? <Header categories={categories.data} isLoading={isLoading}/> : <></>}  */}
+            <Header categories={categories.data} isLoading={isLoading}/>
             <Routes>
                 <Route path='/' element={<ProductListing />} />
                 <Route path='/cart' element={<CartItems />} />
