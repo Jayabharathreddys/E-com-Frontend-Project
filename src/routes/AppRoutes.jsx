@@ -11,9 +11,12 @@ import urlConfig from '../utils/urlConfig';
 import useAuth from '../context/auth/useAuth';
 const AppRoutes = () => {
 
-  const {data: categories, error, isLoading } = useFetchData('https://may24backend.onrender.com/api/product/categories', []);
+  const {data: categories, error, isLoading } = useFetchData(urlConfig.CATEGORIES_URL, []);
 
-  console.log(categories);
+  console.log(categories.data);
+
+  const { user } = useAuth();
+  console.log(user);
 
   return (
       <>
@@ -21,8 +24,8 @@ const AppRoutes = () => {
       {/* <Loader /> */}
         <Router>
           
-            {/* { user && user.length ? <Header categories={categories.data} isLoading={isLoading}/> : <></>}  */}
-            <Header categories={categories} isLoading={isLoading}/>
+            { user && user.status ? <Header categories={categories.data} isLoading={isLoading}/> : <></>} 
+            {/* <Header categories={categories.data} isLoading={isLoading}/> */}
             <Routes>
                 <Route path='/' element={<ProductListing />} />
                 <Route path='/cart' element={<CartItems />} />
