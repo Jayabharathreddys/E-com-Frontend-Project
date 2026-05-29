@@ -1,40 +1,72 @@
 .product-item {
-    border-radius: 0.4rem;
-    border: 1px solid rgb(35, 32, 204);
-    overflow: hidden; /* Prevent content overflow */
+    border-radius: var(--radius-md, 8px);
+    border: 1px solid var(--color-primary, #2320cc);
+    overflow: hidden;
     display: flex;
     flex-direction: column;
     width: 20%;
+    min-width: 200px;
+    background: var(--color-surface, #fff);
+    box-shadow: var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.12));
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.product-item:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md, 0 4px 12px rgba(0,0,0,0.15));
 }
 
 .product-details {
-    background-color: rgb(79, 194, 226);
+    background-color: var(--color-secondary, #4fc2e2);
     padding: 1rem;
-    border-radius: 0.2rem;
-    flex: 0.4 0 0;
+    border-radius: 0 0 var(--radius-md, 8px) var(--radius-md, 8px);
+    flex: 0 0 auto;
 }
 
 .product-image {
-    border-radius: 0.5rem;
+    border-radius: var(--radius-sm, 4px);
     object-fit: contain;
     object-position: center;
     margin: 1rem;
-    flex: 1; /* Occupy available space */
-    height: 40%;
+    flex: 1;
+    height: 160px;
+    width: calc(100% - 2rem);
 }
 
 .product-title {
-    font-size: 1.6rem;
+    font-size: 1.5rem;
     font-weight: bold;
-    margin-bottom: 1rem;
+    margin-bottom: 0.4rem;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    line-height: 1.4;
+    min-height: 2.8em;
+}
+
+.product-stars {
+    font-size: 1.4rem;
+    color: var(--color-accent, #ff9900);
+    margin-bottom: 0.6rem;
+    letter-spacing: 0.1rem;
+}
+
+.product-rating-number {
+    font-size: 1.2rem;
+    color: var(--color-text, #222);
+    font-weight: normal;
 }
 
 .buy-item {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    margin-top: 0.5rem;
 }
 
 .product-price {
-    font-size: 1.4rem;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--color-text, #222);
 }

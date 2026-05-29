@@ -4,65 +4,68 @@ import useFetchData from '../../hooks/useFetchData';
 import urlConfig from '../../utils/urlConfig';
 import Product from '../../components/product/Product';
 import Loader from '../../components/loader';
-
-import './productListing.css';
 import Pagination from '../../components/pagination/Pagination';
+import './productListing.css';
 
 const ProductListing = () => {
-
     const { categoryName } = useParams();
+    const { data: productsResponse, error, isLoading } = useFetchData(urlConfig.ALL_PRODUCT_URL, { message: [] });
 
-    const url = urlConfig.ALL_PRODUCT_URL;
-
-    const {data: productsResponse, error, isLoading} = useFetchData(url, { message: [] });
-
-    // Backend returns { message: [...], status: "success" }
-    // Normalize fields to match Product component (title, image, price)
     const products = (productsResponse?.message || [])
         .filter(p => !categoryName || (p.categories || []).includes(categoryName))
         .map(p => ({
             ...p,
-            id: p._id,
+            id:    p._id,
             title: p.name,
             image: p.productImages?.[0] || 'https://via.placeholder.com/150',
             price: parseFloat(p.price) || 0,
         }));
 
-    console.log(products);
-
-    const itemsPerPage = 3;
+    const itemsPerPage = 6;
     const [currentPage, setCurrentPage] = useState(1);
+    const totalPages     = Math.ceil(products.length / itemsPerPage);
+    const indexOfLast    = currentPage * itemsPerPage;
+    const indexOfFirst   = indexOfLast - itemsPerPage;
+    const currentProducts = products.slice(indexOfFirst, indexOfLast);
 
-    const indexOfLastItem = currentPage * itemsPerPage; // 1*3 =3 -> on click of next page btn 2 -> 2*3 =
-    const indexofFirstItem = indexOfLastItem - itemsPerPage;
-    const currentProducts = products.slice(indexofFirstItem, indexOfLastItem);
+    const paginate = (page) => {
+        if (page < 1 || page > totalPages) return;
+        setCurrentPage(page);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
 
-    const totalPages = Math.ceil(products.length/itemsPerPage);
-
-    const paginate = (pageNumber) => setCurrentPage(pageNumber);
+    if (error) {
+        return (
+            <div className="product-error">
+                <p>Failed to load products. Please try again later.</p>
+            </div>
+        );
+    }
 
     return (
         <div className="container">
-            {
-                isLoading ? (
-                    <Loader />
-                ): (
-                    <>
-                        <div className="product-list">
-                            {
-                                currentProducts && currentProducts.map((product)=>{
-                                    return <Product key={product.id} product={product}/>   
-                                })
-                            }
-                        </div>
-                        <Pagination totalPages={totalPages} currentPage={currentPage} paginate={paginate}/>
-                    </>
-                )
-            }
+            {isLoading ? (
+                <Loader />
+            ) : products.length === 0 ? (
+                <div className="product-empty">
+                    <p>No products found{categoryName ? ` in "${categoryName}"` : ''}.  </p>
+                </div>
+            ) : (
+                <>
+                    <div className="product-list">
+                        {currentProducts.map(product => (
+                            <Product key={product.id} product={product} />
+                        ))}
+                    </div>
+                    <Pagination
+                        totalPages={totalPages}
+                        currentPage={currentPage}
+                        paginate={paginate}
+                    />
+                </>
+            )}
         </div>
-    )
-
-}
+    );
+};
 
 export default ProductListing;
-

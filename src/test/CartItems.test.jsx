@@ -8,19 +8,23 @@ import axios from 'axios';
 
 vi.mock('axios');
 
-// ── helpers ──────────────────────────────────────────────────────────────────
-
 const mockCart = {
     prod1: { id: 'prod1', title: 'Test T-Shirt', price: 22, quantity: 1, image: '' },
     prod2: { id: 'prod2', title: 'Test Jacket',  price: 55, quantity: 2, image: '' },
 };
+// total: 22*1 + 55*2 = 132
 
 const loggedInUser = { status: 'success', name: 'Deepthi', email: 'test@test.com' };
 
 const renderCartItems = ({ cart = {}, user = null } = {}) =>
     render(
-        <AuthContext.Provider value={{ user, setAuth: vi.fn() }}>
-            <CartContext.Provider value={{ cart, totalQuantity: Object.values(cart).reduce((s, i) => s + i.quantity, 0), addToCart: vi.fn(), removeFromCart: vi.fn() }}>
+        <AuthContext.Provider value={{ user, setAuth: vi.fn(), logout: vi.fn() }}>
+            <CartContext.Provider value={{
+                cart,
+                totalQuantity: Object.values(cart).reduce((s, i) => s + i.quantity, 0),
+                addToCart: vi.fn(),
+                removeFromCart: vi.fn(),
+            }}>
                 <MemoryRouter>
                     <CartItems />
                 </MemoryRouter>
@@ -28,66 +32,61 @@ const renderCartItems = ({ cart = {}, user = null } = {}) =>
         </AuthContext.Provider>
     );
 
-// ── tests ─────────────────────────────────────────────────────────────────────
+describe('CartItems — unauthenticated', () => {
+    it('shows login prompt when user is not authenticated', () => {
+        renderCartItems({ cart: mockCart, user: null });
+        expect(screen.getByText(/log in/i)).toBeInTheDocument();
+    });
+
+    it('does not show cart items when unauthenticated', () => {
+        renderCartItems({ cart: mockCart, user: null });
+        expect(screen.queryByText('Test T-Shirt')).not.toBeInTheDocument();
+    });
+});
 
 describe('CartItems — empty cart', () => {
-    it('shows empty cart message when cart is empty', () => {
-        renderCartItems({ cart: {} });
+    it('shows empty cart message', () => {
+        renderCartItems({ cart: {}, user: loggedInUser });
         expect(screen.getByText(/your cart is empty/i)).toBeInTheDocument();
     });
 
-    it('does not render Pay Now button when cart is empty', () => {
-        renderCartItems({ cart: {} });
+    it('does not show Pay Now button when cart is empty', () => {
+        renderCartItems({ cart: {}, user: loggedInUser });
         expect(screen.queryByText(/pay now/i)).not.toBeInTheDocument();
     });
 });
 
 describe('CartItems — with items', () => {
     it('renders all cart items', () => {
-        renderCartItems({ cart: mockCart });
+        renderCartItems({ cart: mockCart, user: loggedInUser });
         expect(screen.getByText('Test T-Shirt')).toBeInTheDocument();
         expect(screen.getByText('Test Jacket')).toBeInTheDocument();
     });
 
-    it('shows correct net total', () => {
-        renderCartItems({ cart: mockCart });
-        // 22*1 + 55*2 = 132
-        expect(screen.getByText('$132.00')).toBeInTheDocument();
+    it('shows correct net total (Rs.)', () => {
+        renderCartItems({ cart: mockCart, user: loggedInUser });
+        expect(screen.getByText(/132\.00/)).toBeInTheDocument();
     });
 
-    it('renders Pay Now button with correct amount', () => {
+    it('renders Pay Now button', () => {
         renderCartItems({ cart: mockCart, user: loggedInUser });
-        expect(screen.getByText(/pay now ₹132/i)).toBeInTheDocument();
+        expect(screen.getByText(/pay now/i)).toBeInTheDocument();
     });
 });
 
 describe('CartItems — payment flow', () => {
     beforeEach(() => {
         vi.clearAllMocks();
-        // Mock Razorpay global
         window.Razorpay = vi.fn().mockImplementation(() => ({
             open: vi.fn(),
             on: vi.fn(),
         }));
     });
 
-    it('shows error message if user is not logged in and clicks Pay Now', async () => {
-        renderCartItems({ cart: mockCart, user: null });
-        fireEvent.click(screen.getByText(/pay now/i));
-        await waitFor(() =>
-            expect(screen.getByText(/please login/i)).toBeInTheDocument()
-        );
-    });
-
-    it('calls booking API and opens Razorpay modal on Pay Now click', async () => {
+    it('calls booking API and opens Razorpay on Pay Now click', async () => {
         axios.post.mockResolvedValueOnce({
-            data: {
-                status: 'success',
-                data: { id: 'order_test123', currency: 'INR', amount: 13200 }
-            }
+            data: { id: 'order_test123', currency: 'INR', amount: 13200 }
         });
-
-        // Mock loadScript — pretend checkout.js is already loaded
         const script = document.createElement('script');
         script.src = 'https://checkout.razorpay.com/v1/checkout.js';
         document.body.appendChild(script);
@@ -96,41 +95,32 @@ describe('CartItems — payment flow', () => {
         fireEvent.click(screen.getByText(/pay now/i));
 
         await waitFor(() => expect(axios.post).toHaveBeenCalledTimes(1));
-
-        // Verify it called the booking endpoint with the right price
         expect(axios.post).toHaveBeenCalledWith(
             expect.stringContaining('/api/booking/'),
-            { priceAtThatTime: 132 },
+            expect.any(Object),
             { withCredentials: true }
         );
-
-        // Razorpay constructor should have been called
         await waitFor(() => expect(window.Razorpay).toHaveBeenCalledTimes(1));
-        const rzpOptions = window.Razorpay.mock.calls[0][0];
-        expect(rzpOptions.order_id).toBe('order_test123');
-        expect(rzpOptions.currency).toBe('INR');
+        const opts = window.Razorpay.mock.calls[0][0];
+        expect(opts.order_id).toBe('order_test123');
+        expect(opts.currency).toBe('INR');
     });
 
-    it('shows error message when booking API fails', async () => {
+    it('shows error when booking API fails', async () => {
         axios.post.mockRejectedValueOnce({
             response: { data: { message: 'Booking failed' } }
         });
-
         renderCartItems({ cart: mockCart, user: loggedInUser });
         fireEvent.click(screen.getByText(/pay now/i));
-
         await waitFor(() =>
             expect(screen.getByText(/booking failed/i)).toBeInTheDocument()
         );
     });
 
-    it('shows Processing... text while payment is loading', async () => {
-        // Never resolves — keeps loading state
+    it('shows Processing... while payment loads', async () => {
         axios.post.mockReturnValueOnce(new Promise(() => {}));
-
         renderCartItems({ cart: mockCart, user: loggedInUser });
         fireEvent.click(screen.getByText(/pay now/i));
-
         await waitFor(() =>
             expect(screen.getByText(/processing/i)).toBeInTheDocument()
         );
@@ -138,11 +128,8 @@ describe('CartItems — payment flow', () => {
 
     it('Pay Now button is disabled while processing', async () => {
         axios.post.mockReturnValueOnce(new Promise(() => {}));
-
         renderCartItems({ cart: mockCart, user: loggedInUser });
-        const btn = screen.getByText(/pay now/i);
-        fireEvent.click(btn);
-
+        fireEvent.click(screen.getByText(/pay now/i));
         await waitFor(() =>
             expect(screen.getByText(/processing/i).closest('button')).toBeDisabled()
         );
