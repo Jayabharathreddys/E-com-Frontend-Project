@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import useFetchData from '../../hooks/useFetchData';
+import urlConfig from '../../utils/urlConfig';
 import Product from '../../components/product/Product';
 import Loader from '../../components/loader';
 
@@ -11,11 +12,21 @@ const ProductListing = () => {
 
     const { categoryName } = useParams();
 
-    const url = categoryName
-    ? `https://fakestoreapi.com/products/category/${categoryName}`
-    : `https://fakestoreapi.com/products`;
+    const url = urlConfig.ALL_PRODUCT_URL;
 
-    const {data: products, error, isLoading} = useFetchData(url, []);
+    const {data: productsResponse, error, isLoading} = useFetchData(url, { message: [] });
+
+    // Backend returns { message: [...], status: "success" }
+    // Normalize fields to match Product component (title, image, price)
+    const products = (productsResponse?.message || [])
+        .filter(p => !categoryName || (p.categories || []).includes(categoryName))
+        .map(p => ({
+            ...p,
+            id: p._id,
+            title: p.name,
+            image: p.productImages?.[0] || 'https://via.placeholder.com/150',
+        }));
+
     console.log(products);
 
     const itemsPerPage = 3;
