@@ -29,7 +29,7 @@ function Login() {
 
             console.log(userDetails);
 
-            const resp = await axios.post(urlConfig.LOGIN_URL, userDetails);
+            const resp = await axios.post(urlConfig.LOGIN_URL, userDetails, { withCredentials: true });
             const data = resp.data;
             // console.log(data);
             console.log(setAuth);

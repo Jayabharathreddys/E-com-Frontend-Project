@@ -25,6 +25,7 @@ const ProductListing = () => {
             id: p._id,
             title: p.name,
             image: p.productImages?.[0] || 'https://via.placeholder.com/150',
+            price: parseFloat(p.price) || 0,
         }));
 
     console.log(products);
