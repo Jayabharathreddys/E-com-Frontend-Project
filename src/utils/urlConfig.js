@@ -2,7 +2,7 @@
 const BASE_URL = import.meta.env.VITE_BASE_URL || "http://localhost:3001";
 console.log(import.meta.env);
 const  urlConfig = {
-    CATEGORIES_URL: "https://fakestoreapi.com/products/categories",
+    CATEGORIES_URL: BASE_URL + "/api/product/categories",
     LOGIN_URL: BASE_URL + "/api/auth/login",
     SIGNUP_URL: BASE_URL + "/api/auth/signup",
     ALL_PRODUCT_URL: BASE_URL + "/api/product",
