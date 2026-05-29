@@ -19,7 +19,7 @@ const useFetchData = (url, intialData) => {
             setError(null);
         } catch (error) {
             setError(error);
-            setData(null);
+            setData(intialData);
         } finally {
             setIsLoading(false);
         }
