@@ -5,122 +5,102 @@ import urlConfig from '../../utils/urlConfig.js';
 import { Link, useNavigate } from "react-router-dom";
 
 function Signup() {
-    /*************state variables*************/
-    const [name, setName] = useState('')
-    const [email, setEmail] = useState('')
-    const [password, setPassword] = useState('')
+    const [name, setName]                     = useState('');
+    const [email, setEmail]                   = useState('');
+    const [password, setPassword]             = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
-
-    const [loading, setLoading] = useState(false);
-    const [errMsg, setErrMsg] = useState("");
+    const [errors, setErrors]                 = useState({});
+    const [serverErr, setServerErr]           = useState('');
+    const [loading, setLoading]               = useState(false);
 
     const navigate = useNavigate();
-    const handleSubmit = async () => {
-        // write your logic here
 
-        try{
+    const validate = () => {
+        const newErrors = {};
+        if (!name.trim())                     newErrors.name    = 'Name is required';
+        if (!email.trim())                    newErrors.email   = 'Email is required';
+        else if (!/\S+@\S+\.\S+/.test(email)) newErrors.email  = 'Enter a valid email';
+        if (!password)                        newErrors.password = 'Password is required';
+        else if (password.length < 6)         newErrors.password = 'Password must be at least 6 characters';
+        if (!confirmPassword)                 newErrors.confirmPassword = 'Please confirm your password';
+        else if (password !== confirmPassword) newErrors.confirmPassword = 'Passwords do not match';
+        return newErrors;
+    };
 
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        const validationErrors = validate();
+        if (Object.keys(validationErrors).length > 0) {
+            setErrors(validationErrors);
+            return;
+        }
+        setErrors({});
+        setServerErr('');
+        try {
             setLoading(true);
-
-            let userDetails= {
-               name,
-               email,
-               password,
-               confirmPassword 
-            };
-
-            console.log(userDetails);
-
-            const resp = await axios.post(urlConfig.SIGNUP_URL, userDetails);
-            const data = resp.data;
-            console.log(data);
-
-            if(data) {
-                setName("");
-                setEmail("");
-                setPassword("");
-                setConfirmPassword("");
-                navigate('/login')
+            const resp = await axios.post(urlConfig.SIGNUP_URL, { name, email, password, confirmPassword });
+            if (resp.data) {
+                navigate('/login', { state: { message: 'Account created! Please sign in.' } });
             }
-        }catch(err){
-            console.log(err.message);
-            setErrMsg("User is not resigtered successfully!");
-            setTimeout(()=>{
-                setErrMsg("");
-            }, 2000);
+        } catch (err) {
+            const msg = err.response?.data?.message || 'Registration failed. Please try again.';
+            setServerErr(msg);
         } finally {
             setLoading(false);
         }
-    }
+    };
 
-    if (loading) return <h1>Loading...</h1>
+    if (loading) return <div className="auth-loading"><p>Creating your account...</p></div>;
+
     return (
         <div className="signupscreen">
             <div className="container">
                 <div className="innerContainer">
-                    <div
-                        style={{
-                            display: 'flex',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            marginBottom: '20px',
-                        }}
-                    >
-                        <div >
-                            <i className="fas fa-arrow-circle-left fa-5x"></i>
-                        </div>
-                        <p>Signup</p>
-                    </div>
+                    <p>Sign Up</p>
 
-                    <label htmlFor="name">Name</label>
-                    <input
-                        type="text"
-                        id="name"
-                        name="name"
-                        placeholder="Your name.."
-                        value={name}
-                        onChange={e => setName(e.target.value)}
-                    />
+                    {serverErr && <div className="errContainer" role="alert">{serverErr}</div>}
 
-                    <label htmlFor="email">Email</label>
-                    <input
-                        type="email"
+                    <form onSubmit={handleSubmit} noValidate>
+                        <label htmlFor="name">Name</label>
+                        <input
+                            type="text" id="name" name="name"
+                            placeholder="Your name.." value={name}
+                            onChange={e => { setName(e.target.value); setErrors(p => ({...p, name: ''})); }}
+                        />
+                        {errors.name && <span className="field-error" role="alert">{errors.name}</span>}
 
-                        name="email"
-                        placeholder="Your email.."
-                        value={email}
-                        onChange={e => setEmail(e.target.value)}
-                    />
-                    <label htmlFor="password">Password</label>
-                    <input
-                        type="password"
-                        name="password"
-                        placeholder="Your Password.."
-                        value={password}
-                        onChange={e => setPassword(e.target.value)}
-                    />
-                    <label htmlFor="password">Confirm Password</label>
-                    <input
-                        type="password"
-                        id="password"
-                        name="confirmPassword"
-                        placeholder="Your ConfirmPassword.."
-                        value={confirmPassword}
-                        onChange={e => setConfirmPassword(e.target.value)}
-                    />
-                    <Link to="/login" className="link">
-                        <span>Already have an account ?</span>
-                    </Link>
+                        <label htmlFor="email">Email</label>
+                        <input
+                            type="email" id="email" name="email"
+                            placeholder="Your email.." value={email}
+                            onChange={e => { setEmail(e.target.value); setErrors(p => ({...p, email: ''})); }}
+                        />
+                        {errors.email && <span className="field-error" role="alert">{errors.email}</span>}
 
-                    <br />
-                    <input type="submit" value="Sign up" onClick={handleSubmit} />
-                    <div className={errMsg ? "errContainer" : ""}>{errMsg}</div>
+                        <label htmlFor="password">Password</label>
+                        <input
+                            type="password" id="password" name="password"
+                            placeholder="Min 6 characters.." value={password}
+                            onChange={e => { setPassword(e.target.value); setErrors(p => ({...p, password: ''})); }}
+                        />
+                        {errors.password && <span className="field-error" role="alert">{errors.password}</span>}
+
+                        <label htmlFor="confirmPassword">Confirm Password</label>
+                        <input
+                            type="password" id="confirmPassword" name="confirmPassword"
+                            placeholder="Repeat password.." value={confirmPassword}
+                            onChange={e => { setConfirmPassword(e.target.value); setErrors(p => ({...p, confirmPassword: ''})); }}
+                        />
+                        {errors.confirmPassword && <span className="field-error" role="alert">{errors.confirmPassword}</span>}
+
+                        <Link to="/login" className="link"><span>Already have an account?</span></Link>
+                        <br />
+                        <input type="submit" value="Sign Up" />
+                    </form>
                 </div>
-
-
             </div>
         </div>
-    )
+    );
 }
 
 export default Signup;

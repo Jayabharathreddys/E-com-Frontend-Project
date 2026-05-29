@@ -12,7 +12,7 @@ const renderWithAuth = (user) =>
                     <Route element={<RequireAuth />}>
                         <Route path="/protected" element={<div>Protected Content</div>} />
                     </Route>
-                    <Route path="/signin" element={<div>Sign In Page</div>} />
+                    <Route path="/login" element={<div>Login Page</div>} />
                 </Routes>
             </MemoryRouter>
         </AuthContext.Provider>
@@ -24,15 +24,14 @@ describe('RequireAuth', () => {
         expect(screen.getByText('Protected Content')).toBeInTheDocument();
     });
 
-    it('redirects to /signin when user is not logged in (null)', () => {
+    it('redirects to /login when user is null', () => {
         renderWithAuth(null);
-        expect(screen.getByText('Sign In Page')).toBeInTheDocument();
+        expect(screen.getByText('Login Page')).toBeInTheDocument();
         expect(screen.queryByText('Protected Content')).not.toBeInTheDocument();
     });
 
-    it('redirects to /signin when user is empty object', () => {
+    it('allows access when user is a non-null object', () => {
         renderWithAuth({});
-        // empty object is truthy — this tests current behavior
         expect(screen.getByText('Protected Content')).toBeInTheDocument();
     });
 });

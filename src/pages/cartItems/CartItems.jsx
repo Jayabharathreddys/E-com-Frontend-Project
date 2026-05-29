@@ -1,156 +1,118 @@
-import { useState } from "react";
-import CartItem from "../../components/cartItem/CartItem";
-import { useCart } from "../../context/cart/useCart";
-import axios from "axios";
-import urlConfig from "../../utils/urlConfig";
-import useAuth from "../../context/auth/useAuth";
-
+import React, { useState } from 'react';
+import { useCart } from '../../context/cart/useCart';
+import useAuth from '../../context/auth/useAuth';
+import CartItem from '../../components/cartItem';
 import './cartItems.css';
+import urlConfig from '../../utils/urlConfig';
+import axios from 'axios';
 
-// Load Razorpay checkout.js script dynamically
-const loadRazorpayScript = () => {
-    return new Promise((resolve, reject) => {
-        if (document.querySelector('script[src*="checkout.razorpay.com"]')) {
-            resolve(); // already loaded
-            return;
-        }
+const loadRazorpayScript = () =>
+    new Promise((resolve) => {
+        if (document.querySelector('script[src*="razorpay"]')) return resolve(true);
         const script = document.createElement('script');
-        script.src = "https://checkout.razorpay.com/v1/checkout.js";
-        script.onload = resolve;
-        script.onerror = reject;
+        script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+        script.onload = () => resolve(true);
+        script.onerror = () => resolve(false);
         document.body.appendChild(script);
     });
-};
 
-const CartItems = () => {
-    const { cart, totalQuantity } = useCart();
+function CartItems() {
+    const { cart, addToCart, removeFromCart } = useCart();
     const { user } = useAuth();
-    const [paymentStatus, setPaymentStatus] = useState(''); // '', 'loading', 'success', 'error'
-    const [errorMsg, setErrorMsg] = useState('');
+    const [paymentErr, setPaymentErr] = useState('');
+    const [processing, setProcessing] = useState(false);
+    const [success, setSuccess] = useState(false);
 
-    const netTotalPrice = Object.values(cart).reduce(
-        (total, item) => total + item.price * item.quantity,
-        0
-    );
+    const cartItems = Object.values(cart || {});
+    const totalPrice = cartItems.reduce((sum, item) => sum + (parseFloat(item.price) || 0) * (item.quantity || 1), 0);
+
+    if (!user) {
+        return (
+            <div className="cart-auth-msg">
+                <p>Please <a href="/login">log in</a> to view your cart and checkout.</p>
+            </div>
+        );
+    }
+
+    if (success) {
+        return (
+            <div className="cart-success">
+                <h2>Payment Successful!</h2>
+                <p>Thank you for your order.</p>
+            </div>
+        );
+    }
 
     const handlePayment = async () => {
-        if (!user || !user.status) {
-            setErrorMsg('Please login to proceed with payment');
-            setTimeout(() => setErrorMsg(''), 3000);
-            return;
-        }
-
-        if (Object.keys(cart).length === 0) {
-            setErrorMsg('Your cart is empty');
-            return;
-        }
+        if (!cartItems.length) return;
+        setPaymentErr('');
+        setProcessing(true);
 
         try {
-            setPaymentStatus('loading');
+            const loaded = await loadRazorpayScript();
+            if (!loaded) throw new Error('Razorpay SDK failed to load.');
 
-            // Load Razorpay script
-            await loadRazorpayScript();
-
-            // Create booking for the first item to get a Razorpay order
-            // (In a full implementation, you'd create a single order for the whole cart total)
-            const firstItem = Object.values(cart)[0];
-
+            const firstItem = cartItems[0];
+            const productId = firstItem._id || firstItem.id;
             const resp = await axios.post(
-                `${urlConfig.ORDR_URL}/${firstItem.id}`,
-                { priceAtThatTime: Math.round(netTotalPrice) },
+                `${urlConfig.ORDR_URL}/${productId}`,
+                { quantity: firstItem.quantity || 1 },
                 { withCredentials: true }
             );
-
-            const { id, currency, amount } = resp.data.data;
+            const { amount, currency, id: order_id } = resp.data;
 
             const options = {
                 key: import.meta.env.VITE_RAZORPAY_KEY_ID,
-                amount: amount.toString(),
-                currency: currency,
-                name: "JB E-Commerce",
-                description: `Order for ${Object.keys(cart).length} item(s)`,
-                image: "https://via.placeholder.com/150",
-                order_id: id,
-                handler: function (response) {
-                    console.log('Payment success:', response);
-                    setPaymentStatus('success');
+                amount,
+                currency,
+                name: 'JBE Commerce',
+                description: 'Order Payment',
+                order_id,
+                handler: () => {
+                    setSuccess(true);
                 },
                 prefill: {
                     name: user?.name || '',
                     email: user?.email || '',
                 },
-                theme: {
-                    color: "#2320CC"
-                },
-                modal: {
-                    ondismiss: function () {
-                        setPaymentStatus('');
-                    }
-                }
+                theme: { color: '#2320cc' },
             };
-
             const rzp = new window.Razorpay(options);
-            rzp.on('payment.failed', function (response) {
-                console.error('Payment failed:', response.error);
-                setPaymentStatus('error');
-                setErrorMsg(`Payment failed: ${response.error.description}`);
-            });
             rzp.open();
-            setPaymentStatus('');
-
         } catch (err) {
-            console.error('Payment error:', err);
-            setPaymentStatus('error');
-            setErrorMsg(err.response?.data?.message || 'Payment initiation failed. Please try again.');
-            setTimeout(() => { setPaymentStatus(''); setErrorMsg(''); }, 4000);
+            const msg = err.response?.data?.message || err.message || 'Payment failed. Please try again.';
+            setPaymentErr(msg);
+        } finally {
+            setProcessing(false);
         }
     };
 
-    if (paymentStatus === 'success') {
-        return (
-            <div className="payment-success">
-                <h2>🎉 Payment Successful!</h2>
-                <p>Your order has been placed successfully.</p>
-            </div>
-        );
-    }
-
     return (
-        <>
-            <h2 className="cart-items-heading">Your Cart Items</h2>
-
-            {Object.keys(cart).length === 0 ? (
-                <p className="empty-cart">Your cart is empty.</p>
+        <div className="cart-page">
+            {cartItems.length === 0 ? (
+                <div className="cart-empty"><p>Your cart is empty.</p></div>
             ) : (
                 <>
-                    <ul className="cart-items">
-                        {Object.values(cart).map((item, index) => (
-                            <CartItem key={`cart-item-${index}`} cartData={item} />
+                    <div className="cart-items-list">
+                        {cartItems.map(item => (
+                            <CartItem key={item._id || item.id} cartData={item} />
                         ))}
-                    </ul>
-
-                    <div className="cart-net-total">
-                        <p className="cart-net-total-label">Net Total</p>
-                        <p className="cart-net-total-price">${netTotalPrice.toFixed(2)}</p>
                     </div>
-
-                    {errorMsg && (
-                        <div className="payment-error-msg">{errorMsg}</div>
-                    )}
-
-                    <div className="pay-now-container">
+                    <div className="cart-summary">
+                        <p className="cart-total">Net Total: <strong>Rs. {totalPrice.toFixed(2)}</strong></p>
+                        {paymentErr && <p className="cart-err" role="alert">{paymentErr}</p>}
                         <button
-                            className="pay-now-btn"
+                            className="cart-pay-btn"
                             onClick={handlePayment}
-                            disabled={paymentStatus === 'loading'}
+                            disabled={processing}
                         >
-                            {paymentStatus === 'loading' ? 'Processing...' : `Pay Now ₹${Math.round(netTotalPrice)}`}
+                            {processing ? 'Processing...' : 'Pay Now'}
                         </button>
                     </div>
                 </>
             )}
-        </>
+        </div>
     );
-};
+}
 
 export default CartItems;
