@@ -13,7 +13,7 @@ const AppRoutes = () => {
 
   const {data: categories, error, isLoading } = useFetchData(urlConfig.CATEGORIES_URL, []);
 
-  console.log(categories.data);
+  console.log(categories?.data);
 
   const { user } = useAuth();
   console.log(user);
@@ -25,7 +25,7 @@ const AppRoutes = () => {
         <Router>
           
             {/* { user && user.status ? <Header categories={categories.data} isLoading={isLoading}/> : <></>}  */}
-            <Header categories={categories.data} isLoading={isLoading}/>
+            <Header categories={categories?.data || []} isLoading={isLoading}/>
             <Routes>
                 <Route path='/' element={<ProductListing />} />
                 <Route path='/cart' element={<CartItems />} />
