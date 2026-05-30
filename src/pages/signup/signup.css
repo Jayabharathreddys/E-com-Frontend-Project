@@ -15,7 +15,7 @@ textarea {
 }
 
 .signupscreen input[type='submit'] {
-    background-color: rgb(35, 32, 204);
+    background-color: #3d5a99;
     color: white;
     padding: 12px 20px;
     border: none;
@@ -96,4 +96,19 @@ textarea {
     background-color: lightcoral;
     border: 2px solid #ccc;
     color: white
+}
+.field-error {
+    display: block;
+    color: #c0392b;
+    font-size: 1.3rem;
+    margin-top: -10px;
+    margin-bottom: 8px;
+}
+
+.auth-loading {
+    display: grid;
+    place-items: center;
+    height: 70vh;
+    font-size: 1.8rem;
+    color: #555;
 }

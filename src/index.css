@@ -5,8 +5,8 @@
 
 /* ---- Colour Palette ---- */
 :root {
-  --color-primary:       #2320cc;   /* brand blue — buttons, links */
-  --color-primary-dark:  #1a1899;   /* hover state for primary */
+  --color-primary:       #3d5a99;   /* brand blue — buttons, links */
+  --color-primary-dark:  #2e4377;   /* hover state for primary */
   --color-secondary:     #4fc2e2;   /* product card background */
   --color-accent:        #ff9900;   /* cart badge, highlights */
   --color-danger:        #c0392b;   /* error messages */
@@ -16,7 +16,7 @@
   --color-border:        #cccccc;   /* input borders */
   --color-text:          #222222;   /* body text */
   --color-text-muted:    #666666;   /* secondary text */
-  --color-header-bg:     #1a1a2e;   /* navbar / header */
+  --color-header-bg:     #3d5a99;   /* navbar / header */
   --color-header-text:   #ffffff;
 
   /* ---- Typography ---- */
