@@ -3,8 +3,6 @@ import Axios from 'axios';
 import { useEffect } from 'react';
 import { useState } from 'react';
 const useFetchData = (url, intialData) => {
-    console.log(url);
-
     const [data, setData] = useState(intialData);
     const [error, setError] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
