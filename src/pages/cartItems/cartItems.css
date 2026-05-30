@@ -35,7 +35,7 @@
 }
 
 .cart-pay-btn {
-    background-color: #2320CC;
+    background-color: #3d5a99;
     color: white;
     border: none;
     padding: 1.2rem 3rem;
@@ -47,7 +47,7 @@
 }
 
 .cart-pay-btn:hover {
-    background-color: #1a18a0;
+    background-color: #2e4377;
 }
 
 .cart-pay-btn:disabled {
@@ -74,7 +74,7 @@
 }
 
 .cart-auth-msg a {
-    color: #2320CC;
+    color: #3d5a99;
     font-weight: bold;
 }
 
@@ -94,7 +94,7 @@
     justify-content: space-between;
     align-items: center;
     padding: 2rem 3rem;
-    background-color: rgb(35, 32, 204);
+    background-color: #3d5a99;
 }
 
 .cart-net-total-label,
@@ -111,7 +111,7 @@
 }
 
 .pay-now-btn {
-    background-color: #2320CC;
+    background-color: #3d5a99;
     color: white;
     border: none;
     padding: 1rem 2.5rem;

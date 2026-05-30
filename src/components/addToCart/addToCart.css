@@ -23,7 +23,7 @@
   
 .add:hover,
 .remove:hover{
-  background-color: rgb(35, 32, 204); /* Hover background color for good contrast */
+  background-color: #3d5a99; /* Hover background color for good contrast */
   transform: scale(1.05);
 }
 

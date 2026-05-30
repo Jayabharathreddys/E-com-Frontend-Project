@@ -1,15 +1,22 @@
+
 .nav {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    height: 100%;
+}
+
+.nav-left {
+    flex: 1;
 }
 
 .nav-items {
     display: flex;
     gap: 2rem;
-    justify-content: space-evenly;
     align-items: center;
-    padding: 0.75rem 0;
+    padding: 0;
+    margin: 0;
+    list-style: none;
 }
 
 .nav-item {
@@ -19,50 +26,94 @@
 }
 
 .nav-link {
-    list-style: none;
     color: #fff;
     font-size: 1.6rem;
     text-decoration: none;
     padding-bottom: 0.25rem;
     text-transform: capitalize;
-    border-bottom: 3px solid transparent; /* Transparent border by default */
-    transition: border-bottom 0.3s; /* Add smooth transition */
+    border-bottom: 3px solid transparent;
+    transition: border-bottom 0.2s;
 }
 
-.nav-link:hover {
-    border-bottom: 3px solid rgb(255, 255, 255); /* highlight on hover */
+.nav-link:hover,
+.nav-link.active {
+    border-bottom: 3px solid #fff;
 }
 
-.active {
-    border-bottom: 3px solid rgb(255, 255, 255); /* highlight on hover */
+.nav-right {
+    display: flex;
+    align-items: center;
+    gap: 1.6rem;
+    padding-right: 0.5rem;
 }
 
+/* Login link — styled as a button outline */
+.nav-login-link {
+    color: #fff;
+    font-size: 1.4rem;
+    text-decoration: none;
+    border: 2px solid #fff !important;
+    border-bottom: 2px solid #fff !important;
+    padding: 0.4rem 1.4rem;
+    border-radius: 4px;
+    transition: background 0.2s;
+    white-space: nowrap;
+}
+
+.nav-login-link:hover {
+    background: rgba(255,255,255,0.2);
+    border-bottom: 2px solid #fff !important;
+}
+
+/* Logout button */
+.nav-logout-btn {
+    background: transparent;
+    border: 2px solid #fff;
+    color: #fff;
+    font-size: 1.4rem;
+    padding: 0.4rem 1.4rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.2s;
+    white-space: nowrap;
+    line-height: 1.4;
+}
+
+.nav-logout-btn:hover {
+    background: rgba(255,255,255,0.2);
+}
+
+/* Cart icon */
 .cart-icon-container {
-    padding: 1rem;
+    padding: 0.6rem 0.8rem;
     border: 2px solid #fff;
     border-radius: 50%;
     cursor: pointer;
     position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
 }
 
 .cart-icon {
     color: #fff;
-    font-size: 1.25rem;
+    font-size: 1.5rem;
     vertical-align: middle;
 }
 
 .cart-badge {
     position: absolute;
-    right: -10px;
-    top: -10px;
-    color: black;
-    background-color: orange;
+    top: -8px;
+    right: -8px;
+    background: #ff9900;
+    color: #fff;
+    font-size: 1rem;
+    font-weight: bold;
+    width: 2rem;
+    height: 2rem;
     border-radius: 50%;
-    padding: 0.25em;
-    font-size: 1.25rem;
-    width: 2em; /* Set the width to the same value as height */
-    height: 2em; /* Set the height to the same value as width */
-    display: flex; /* Use flexbox to center content */
-    align-items: center; /* Center vertically */
-    justify-content: center; /* Center horizontally */
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }

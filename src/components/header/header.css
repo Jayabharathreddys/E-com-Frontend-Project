@@ -1,7 +1,8 @@
 .header {
     width: 100%;
     height: 7rem;
-    background-color: rgb(35, 32, 204);
-    padding: 1.5rem 2.5rem;
+    background-color: #3d5a99;
+    padding: 0 2.5rem;
     text-transform: capitalize;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.18);
 }

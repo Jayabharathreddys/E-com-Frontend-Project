@@ -17,22 +17,17 @@ const AppRoutes = () => {
     <Router>
       <Header categories={categories?.data || categories || []} isLoading={isLoading} />
       <Routes>
-        {/* Public routes */}
-        <Route path='/'              element={<ProductListing />} />
+        <Route path='/'                       element={<ProductListing />} />
         <Route path='/products/:categoryName' element={<ProductListing />} />
-        <Route path='/signup'        element={<Signup />} />
-        <Route path='/login'         element={<Login />} />
-        <Route path='/unauthorized'  element={<Unauthorized />} />
+        <Route path='/signup'                 element={<Signup />} />
+        <Route path='/login'                  element={<Login />} />
+        <Route path='/unauthorized'           element={<Unauthorized />} />
+        <Route path='/signin'                 element={<Navigate to="/login" replace />} />
 
-        {/* Legacy redirect — old /signin links still work */}
-        <Route path='/signin' element={<Navigate to="/login" replace />} />
-
-        {/* Protected routes */}
         <Route element={<RequireAuth />}>
           <Route path='/cart' element={<CartItems />} />
         </Route>
 
-        {/* Catch-all */}
         <Route path='*' element={<NotFound />} />
       </Routes>
     </Router>
