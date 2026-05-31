@@ -61,7 +61,7 @@ function Login() {
         <div className="signinscreen">
             <div className="container">
                 <div className="innerContainer">
-                    <p>Sign In</p>
+                    <p>Login</p>
 
                     {serverErr && <div className="errContainer" role="alert">{serverErr}</div>}
 
@@ -95,7 +95,7 @@ function Login() {
                             <Link to="/forgot-password" className="link forgot-link">Forgot password?</Link>
                         </div>
                         <br />
-                        <input type="submit" value="Sign In" />
+                        <input type="submit" value="Login" />
                     </form>
                 </div>
             </div>
