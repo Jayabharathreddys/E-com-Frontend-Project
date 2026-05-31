@@ -17,7 +17,7 @@ const loadRazorpayScript = () =>
     });
 
 function CartItems() {
-    const { cart, addToCart, removeFromCart } = useCart();
+    const { cart, addToCart, removeFromCart, clearCart } = useCart();
     const { user } = useAuth();
     const [paymentErr, setPaymentErr] = useState('');
     const [processing,  setProcessing]  = useState(false);
@@ -93,6 +93,7 @@ function CartItems() {
                                 },
                                 { withCredentials: true, headers: getAuthHeaders() }
                             );
+                            clearCart();
                             setSuccess(true);
                             resolve();
                         } catch (verifyErr) {
