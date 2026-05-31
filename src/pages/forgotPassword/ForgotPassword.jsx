@@ -27,7 +27,7 @@ function ForgotPassword() {
         setServerErr('');
         setLoading(true);
         try {
-            const resp = await axios.patch(urlConfig.FORGET_PASSWORD_URL, { email });
+            const resp = await axios.patch(urlConfig.FORGOT_PASSWORD_URL, { email });
             const { userId: uid } = resp.data;
             setUserId(uid);
             setSent(true);

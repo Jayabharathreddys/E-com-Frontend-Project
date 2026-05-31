@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 import CartProvider from '../context/cart/CartProvider';
 import { useCart } from '../context/cart/useCart';
 
@@ -15,6 +15,7 @@ const CartConsumer = () => {
             <div data-testid="item-qty">{cart['p1']?.quantity || 0}</div>
             <button onClick={() => addToCart(product)}>Add</button>
             <button onClick={() => removeFromCart('p1')}>Remove</button>
+            <button onClick={() => removeFromCart('nonexistent')}>Remove Unknown</button>
         </div>
     );
 };
@@ -65,5 +66,28 @@ describe('CartProvider', () => {
         fireEvent.click(screen.getByText('Remove'));
         expect(screen.getByTestId('cart-size').textContent).toBe('0');
         expect(screen.getByTestId('total-qty').textContent).toBe('0');
+    });
+
+    // ── Fix #3: removeFromCart crash guard ────────────────────────────────────
+    it('removeFromCart with unknown productId does NOT crash', () => {
+        renderWithCart();
+        // Should not throw
+        expect(() => fireEvent.click(screen.getByText('Remove Unknown'))).not.toThrow();
+        // State must remain unchanged
+        expect(screen.getByTestId('total-qty').textContent).toBe('0');
+        expect(screen.getByTestId('cart-size').textContent).toBe('0');
+    });
+
+    // ── Fix #4: stale closure — functional updates ────────────────────────────
+    it('rapid double-click increments quantity by 2 (no stale closure)', async () => {
+        renderWithCart();
+        // Fire two add clicks in the same event-loop tick via act
+        await act(async () => {
+            fireEvent.click(screen.getByText('Add'));
+            fireEvent.click(screen.getByText('Add'));
+        });
+        // Both clicks must be reflected — stale closure would give qty=1
+        expect(screen.getByTestId('total-qty').textContent).toBe('2');
+        expect(screen.getByTestId('item-qty').textContent).toBe('2');
     });
 });

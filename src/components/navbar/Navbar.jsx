@@ -18,7 +18,7 @@ const Navbar = ({categories, isLoading}) => {
 
     const handleLogout = async () => {
         try {
-            await axios.post(`${urlConfig.ORDR_URL.replace('/api/booking', '')}/api/auth/logout`, {}, { withCredentials: true });
+            await axios.post(urlConfig.LOGOUT_URL, {}, { withCredentials: true });
         } catch (_) { /* ignore */ }
         clearCart();   // clear cart badge on logout
         logout();
@@ -30,8 +30,8 @@ const Navbar = ({categories, isLoading}) => {
             <div className='nav-left'>
                 <ul className='nav-items'>
                     {isLoading && <Loader />}
-                    {categories && categories.length > 0 ? categories.map((item, idx) => (
-                        <li className='nav-item' key={idx + 1}>
+                    {categories && categories.length > 0 ? categories.map((item) => (
+                        <li className='nav-item' key={item}>
                             <NavLink to={`/products/${item}`} className="nav-link">{item}</NavLink>
                         </li>
                     )) : <></>}

@@ -1,6 +1,8 @@
 import { useState } from "react";
 import AuthContext from "./AuthContext";
 
+// AuthProvider is the named export used throughout the app.
+// AuthContext is the default export for useAuth to import directly.
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(() => {
         try {

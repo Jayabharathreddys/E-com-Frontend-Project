@@ -59,39 +59,47 @@ function CartItems() {
             const loaded = await loadRazorpayScript();
             if (!loaded) throw new Error('Razorpay SDK failed to load. Check your connection.');
 
-            const firstItem = cartItems[0];
-            const productId = firstItem._id || firstItem.id;
-            const priceAtThatTime = parseFloat(firstItem.price) || 0;
+            // Step 1: Create one booking per cart item sequentially and collect bookingIds
+            const authOpts = { withCredentials: true, headers: getAuthHeaders() };
+            const bookings = [];
+            for (const item of cartItems) {
+                const productId      = item._id || item.id;
+                const priceAtThatTime = parseFloat(item.price) || 0;
+                const resp = await axios.post(
+                    `${urlConfig.ORDER_URL}/${productId}`,
+                    { priceAtThatTime, quantity: item.quantity || 1 },
+                    authOpts
+                );
+                bookings.push({ ...resp.data, productId });
+            }
 
-            // Step 1: Create order on backend
-            const resp = await axios.post(
-                `${urlConfig.ORDR_URL}/${productId}`,
-                { priceAtThatTime, quantity: firstItem.quantity || 1 },
-                { withCredentials: true, headers: getAuthHeaders() }
-            );
-            const { amount, currency, id: order_id, bookingId } = resp.data;
+            // Use first booking's Razorpay order for the payment session;
+            // the combined amount covers all items.
+            const combinedAmount = bookings.reduce((sum, b) => sum + (b.amount || 0), 0);
+            const { currency, id: order_id } = bookings[0];
+            const bookingIds = bookings.map(b => b.bookingId);
 
             // Step 2: Open Razorpay checkout
             await new Promise((resolve, reject) => {
                 const options = {
                     key:         import.meta.env.VITE_RAZORPAY_KEY_ID,
-                    amount,
+                    amount:      combinedAmount,
                     currency,
                     name:        'JBE Commerce',
-                    description: 'Order Payment',
+                    description: `Order Payment (${cartItems.length} item${cartItems.length > 1 ? 's' : ''})`,
                     order_id,
                     handler: async (paymentResponse) => {
                         try {
-                            // Step 3: Verify payment with backend (sends email receipt too)
+                            // Step 3: Verify payment for all bookings
                             await axios.post(
-                                `${urlConfig.ORDR_URL}/verify`,
+                                `${urlConfig.ORDER_URL}/verify`,
                                 {
                                     razorpay_order_id:   paymentResponse.razorpay_order_id,
                                     razorpay_payment_id: paymentResponse.razorpay_payment_id,
                                     razorpay_signature:  paymentResponse.razorpay_signature,
-                                    bookingId,
+                                    bookingIds,          // send all booking IDs
                                 },
-                                { withCredentials: true, headers: getAuthHeaders() }
+                                authOpts
                             );
                             clearCart();
                             setSuccess(true);
