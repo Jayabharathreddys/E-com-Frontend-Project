@@ -3,6 +3,8 @@ import { vi } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
 import CartItems from '../pages/cartItems/CartItems';
 import axios from 'axios';
+import AuthContext from '../context/auth/AuthContext';
+import CartContext from '../context/cart/CartContext';
 
 vi.mock('axios');
 
@@ -14,37 +16,35 @@ global.Razorpay = vi.fn(() => ({
     on:   mockRazorpayOn,
 }));
 
-// Mock cart and auth context hooks
-vi.mock('../context/cart/useCart', () => ({
-    useCart: () => ({
-        cart: {
-            // CartItem.jsx uses 'title' (not 'name') for the heading
-            'prod1': { _id: 'prod1', id: 'prod1', title: 'Test Item', name: 'Test Item', price: '100', quantity: 1 },
-        },
-        addToCart:      vi.fn(),
-        removeFromCart: vi.fn(),
-        clearCart:      vi.fn(),   // required: CartItems calls clearCart() on payment success
-    }),
-}));
+// ── Shared mock data ──────────────────────────────────────────────────────────
+const mockUser    = { name: 'Alice', email: 'alice@test.com' };
+const mockClearCart = vi.fn();
+const mockAddToCart = vi.fn();
+const mockRemoveFromCart = vi.fn();
 
-const mockUser = { name: 'Alice', email: 'alice@test.com' };
-vi.mock('../context/auth/useAuth', () => ({
-    default: () => ({ user: mockUser }),
-}));
+const singleItemCart = {
+    prod1: { _id: 'prod1', id: 'prod1', title: 'Test Item', name: 'Test Item', price: '100', quantity: 1 },
+};
 
-// Mock Razorpay script loader (no DOM needed)
-vi.mock('../pages/cartItems/CartItems', async (importOriginal) => {
-    return importOriginal(); // use real module
-});
+const multiItemCart = {
+    prod1: { _id: 'prod1', id: 'prod1', title: 'Test Item',   price: '100', quantity: 1 },
+    prod2: { _id: 'prod2', id: 'prod2', title: 'Second Item', price: '200', quantity: 2 },
+};
 
-const renderCart = () => render(
-    <MemoryRouter><CartItems /></MemoryRouter>
-);
+// ── Render helpers ────────────────────────────────────────────────────────────
+const renderCart = (cart = singleItemCart, user = mockUser) =>
+    render(
+        <AuthContext.Provider value={{ user }}>
+            <CartContext.Provider value={{ cart, addToCart: mockAddToCart, removeFromCart: mockRemoveFromCart, clearCart: mockClearCart }}>
+                <MemoryRouter><CartItems /></MemoryRouter>
+            </CartContext.Provider>
+        </AuthContext.Provider>
+    );
 
 describe('CartItems — authenticated with items', () => {
     beforeEach(() => {
         vi.clearAllMocks();
-        // Mock script load
+        // Stub razorpay script as already loaded
         Object.defineProperty(document, 'querySelector', {
             writable: true,
             value: () => ({ src: 'razorpay' }),
@@ -59,7 +59,6 @@ describe('CartItems — authenticated with items', () => {
     it('shows Net Total with Rs.', () => {
         renderCart();
         expect(screen.getByText(/Net Total/i)).toBeInTheDocument();
-        // Multiple Rs. elements exist (unit price + total + summary) — check at least one
         expect(screen.getAllByText(/Rs\./i).length).toBeGreaterThan(0);
     });
 
@@ -93,7 +92,7 @@ describe('CartItems — authenticated with items', () => {
         expect(await screen.findByText('Razorpay not configured')).toBeInTheDocument();
     });
 
-    it('calls booking API with priceAtThatTime not quantity', async () => {
+    it('calls booking API with priceAtThatTime and correct productId', async () => {
         axios.post.mockResolvedValueOnce({
             data: { id: 'order_123', currency: 'INR', amount: 10000, bookingId: 'b1' }
         });
@@ -107,22 +106,75 @@ describe('CartItems — authenticated with items', () => {
             );
         });
     });
-});
 
-describe('CartItems — unauthenticated', () => {
-    beforeEach(() => {
-        vi.doMock('../context/auth/useAuth', () => ({
-            default: () => ({ user: null }),
-        }));
+    // ── Fix #1: Multi-item checkout ────────────────────────────────────────────
+    it('creates one booking per cart item (multi-item checkout)', async () => {
+        // prod1 booking
+        axios.post.mockResolvedValueOnce({
+            data: { id: 'order_1', currency: 'INR', amount: 10000, bookingId: 'b1' }
+        });
+        // prod2 booking
+        axios.post.mockResolvedValueOnce({
+            data: { id: 'order_2', currency: 'INR', amount: 40000, bookingId: 'b2' }
+        });
+        mockRazorpayOpen.mockImplementation(() => {});
+
+        renderCart(multiItemCart);
+        fireEvent.click(screen.getByText('Pay Now'));
+
+        await waitFor(() => {
+            // Two booking calls — one per item
+            const bookingCalls = axios.post.mock.calls.filter(([url]) =>
+                url.includes('/api/booking/prod')
+            );
+            expect(bookingCalls).toHaveLength(2);
+            expect(bookingCalls[0][0]).toContain('/api/booking/prod1');
+            expect(bookingCalls[1][0]).toContain('/api/booking/prod2');
+        });
     });
 
-    it('shows login prompt when cart context used without auth', () => {
-        // Re-import with null user mock
-        const { container } = render(
-            <MemoryRouter><CartItems /></MemoryRouter>
+    it('sends all bookingIds to verify endpoint after multi-item checkout', async () => {
+        axios.post
+            .mockResolvedValueOnce({ data: { id: 'o1', currency: 'INR', amount: 10000, bookingId: 'b1' } })
+            .mockResolvedValueOnce({ data: { id: 'o2', currency: 'INR', amount: 40000, bookingId: 'b2' } });
+
+        // Simulate Razorpay calling the handler with a payment response
+        global.Razorpay = vi.fn(({ handler }) => ({
+            open: () => handler({
+                razorpay_order_id:   'pay_order_id',
+                razorpay_payment_id: 'pay_id',
+                razorpay_signature:  'sig',
+            }),
+            on: vi.fn(),
+        }));
+        // Verify call
+        axios.post.mockResolvedValueOnce({ data: { success: true } });
+
+        renderCart(multiItemCart);
+        fireEvent.click(screen.getByText('Pay Now'));
+
+        await waitFor(() => {
+            const verifyCalls = axios.post.mock.calls.filter(([url]) =>
+                url.includes('/verify')
+            );
+            expect(verifyCalls).toHaveLength(1);
+            expect(verifyCalls[0][1]).toMatchObject({
+                bookingIds: expect.arrayContaining(['b1', 'b2']),
+            });
+        });
+    });
+});
+
+// ── Fix #19: Unauthenticated — use context directly, not vi.doMock ─────────────
+describe('CartItems — unauthenticated', () => {
+    it('shows login prompt when user is null', () => {
+        render(
+            <AuthContext.Provider value={{ user: null }}>
+                <CartContext.Provider value={{ cart: {}, addToCart: vi.fn(), removeFromCart: vi.fn(), clearCart: vi.fn() }}>
+                    <MemoryRouter><CartItems /></MemoryRouter>
+                </CartContext.Provider>
+            </AuthContext.Provider>
         );
-        // CartItems with real user from module-level mock shows items
-        // This test verifies the component doesn't crash
-        expect(container).toBeTruthy();
+        expect(screen.getByText(/log in/i)).toBeInTheDocument();
     });
 });

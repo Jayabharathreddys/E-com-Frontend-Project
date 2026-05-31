@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import useFetchData from '../../hooks/useFetchData';
 import urlConfig from '../../utils/urlConfig';
@@ -23,6 +23,11 @@ const ProductListing = () => {
 
     const itemsPerPage = 6;
     const [currentPage, setCurrentPage] = useState(1);
+
+    // Reset to page 1 whenever the category changes
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [categoryName]);
     const totalPages     = Math.ceil(products.length / itemsPerPage);
     const indexOfLast    = currentPage * itemsPerPage;
     const indexOfFirst   = indexOfLast - itemsPerPage;
