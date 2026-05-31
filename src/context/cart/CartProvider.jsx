@@ -7,34 +7,39 @@ const ContextProvider = ({children}) => {
     const [totalQuantity, setTotalQuantity] = useState(0);
 
     const addToCart = (product) => {
-        const updatedCart = {...cartState};
-
-        if(updatedCart[product.id]) {
-            updatedCart[product.id].quantity+=1;
-        } else {
-            updatedCart[product.id] = {...product, quantity: 1};
-        }
-
-        setTotalQuantity(totalQuantity+1);
-
-        setCartState(updatedCart);
+        setCartState(prev => {
+            const updatedCart = { ...prev };
+            if (updatedCart[product.id]) {
+                updatedCart[product.id] = {
+                    ...updatedCart[product.id],
+                    quantity: updatedCart[product.id].quantity + 1,
+                };
+            } else {
+                updatedCart[product.id] = { ...product, quantity: 1 };
+            }
+            return updatedCart;
+        });
+        // Use functional update to avoid stale-closure bug on rapid clicks
+        setTotalQuantity(prev => prev + 1);
     }
 
     const removeFromCart = (productId) => {
+        // Guard: do nothing if product is not in cart
+        if (!cartState[productId]) return;
 
-        // create a shallow copy
-        const updatedCart = {...cartState};
-
-        // if product exists then decarease the qty
-        updatedCart[productId].quantity-=1;
-
-        if( updatedCart[productId].quantity<=0) {
-            delete updatedCart[productId];
-        }
-
-        setTotalQuantity(totalQuantity-1);
-
-        setCartState(updatedCart); 
+        setCartState(prev => {
+            if (!prev[productId]) return prev;         // double guard for async safety
+            const updatedCart = { ...prev };
+            const newQty = updatedCart[productId].quantity - 1;
+            if (newQty <= 0) {
+                delete updatedCart[productId];
+            } else {
+                updatedCart[productId] = { ...updatedCart[productId], quantity: newQty };
+            }
+            return updatedCart;
+        });
+        // Use functional update to avoid stale-closure bug on rapid clicks
+        setTotalQuantity(prev => prev - 1);
     }
 
     const clearCart = () => {
