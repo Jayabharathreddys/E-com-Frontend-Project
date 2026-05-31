@@ -109,3 +109,50 @@ textarea {
     font-size: 1.8rem;
     color: #555;
 }
+
+.auth-subtitle {
+    font-size: 1.3rem !important;
+    color: #666;
+    text-align: center;
+    margin-bottom: 1.4rem !important;
+}
+
+.auth-links {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0.4rem;
+    font-size: 1.4rem;
+}
+
+.forgot-link {
+    color: #3d5a99;
+    font-size: 1.3rem;
+}
+
+.otp-sent-msg {
+    background: #eef4ff;
+    border-left: 4px solid #3d5a99;
+    padding: 1.2rem 1.6rem;
+    border-radius: 4px;
+    margin: 1.2rem 0;
+    font-size: 1.4rem;
+    line-height: 1.7;
+}
+
+.auth-action-btn {
+    width: 100%;
+    background-color: #3d5a99;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 1.2rem;
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.auth-action-btn:hover {
+    background-color: #2e4377;
+}

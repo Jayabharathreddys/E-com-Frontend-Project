@@ -8,6 +8,8 @@ import CartItems from '../pages/cartItems/CartItems';
 import Signup from '../pages/signup/Signup';
 import Login from '../pages/login/Login';
 import RequireAuth from '../components/requireAuth/RequireAuth';
+import ForgotPassword from '../pages/forgotPassword/ForgotPassword';
+import ResetPassword from '../pages/resetPassword/ResetPassword';
 import urlConfig from '../utils/urlConfig';
 
 const AppRoutes = () => {
@@ -22,6 +24,8 @@ const AppRoutes = () => {
         <Route path='/signup'                 element={<Signup />} />
         <Route path='/login'                  element={<Login />} />
         <Route path='/unauthorized'           element={<Unauthorized />} />
+        <Route path='/forgot-password'        element={<ForgotPassword />} />
+        <Route path='/reset-password/:userId' element={<ResetPassword />} />
         <Route path='/signin'                 element={<Navigate to="/login" replace />} />
 
         <Route element={<RequireAuth />}>

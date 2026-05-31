@@ -90,9 +90,10 @@ function Login() {
                         />
                         {errors.password && <span className="field-error" id="password-error" role="alert">{errors.password}</span>}
 
-                        <Link to="/signup" className="link">
-                            <span>Create a new account?</span>
-                        </Link>
+                        <div className="auth-links">
+                            <Link to="/signup" className="link">Create a new account?</Link>
+                            <Link to="/forgot-password" className="link forgot-link">Forgot password?</Link>
+                        </div>
                         <br />
                         <input type="submit" value="Sign In" />
                     </form>
