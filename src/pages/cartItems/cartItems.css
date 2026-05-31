@@ -1,7 +1,8 @@
 .cart-page {
     max-width: 900px;
     margin: 2rem auto;
-    padding: 0 1.5rem;
+    padding: 0 1.5rem 6rem; /* bottom padding so Pay Now isn't clipped */
+    min-height: 60vh;
 }
 
 .cart-items-heading {

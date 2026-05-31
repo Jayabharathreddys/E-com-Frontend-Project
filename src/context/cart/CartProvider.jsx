@@ -37,11 +37,17 @@ const ContextProvider = ({children}) => {
         setCartState(updatedCart); 
     }
 
+    const clearCart = () => {
+        setCartState({});
+        setTotalQuantity(0);
+    };
+
     const cartContextValue = {
         cart: cartState,
         totalQuantity,
         addToCart,
-        removeFromCart
+        removeFromCart,
+        clearCart
     };
 
     return (
