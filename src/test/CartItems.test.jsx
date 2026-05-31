@@ -18,10 +18,12 @@ global.Razorpay = vi.fn(() => ({
 vi.mock('../context/cart/useCart', () => ({
     useCart: () => ({
         cart: {
-            'prod1': { _id: 'prod1', id: 'prod1', name: 'Test Item', price: '100', quantity: 1 },
+            // CartItem.jsx uses 'title' (not 'name') for the heading
+            'prod1': { _id: 'prod1', id: 'prod1', title: 'Test Item', name: 'Test Item', price: '100', quantity: 1 },
         },
-        addToCart:    vi.fn(),
+        addToCart:      vi.fn(),
         removeFromCart: vi.fn(),
+        clearCart:      vi.fn(),   // required: CartItems calls clearCart() on payment success
     }),
 }));
 
@@ -57,7 +59,8 @@ describe('CartItems — authenticated with items', () => {
     it('shows Net Total with Rs.', () => {
         renderCart();
         expect(screen.getByText(/Net Total/i)).toBeInTheDocument();
-        expect(screen.getByText(/Rs\./i)).toBeInTheDocument();
+        // Multiple Rs. elements exist (unit price + total + summary) — check at least one
+        expect(screen.getAllByText(/Rs\./i).length).toBeGreaterThan(0);
     });
 
     it('renders Pay Now button', () => {
