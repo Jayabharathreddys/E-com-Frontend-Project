@@ -100,7 +100,7 @@ function CartItems() {
                         }
                     },
                     modal: {
-                        ondismiss: () => reject(new Error('Payment cancelled')),
+                        ondismiss: () => reject(new Error('__CANCELLED__')),
                     },
                     prefill: {
                         name:  user?.name  || '',
@@ -109,13 +109,18 @@ function CartItems() {
                     theme: { color: '#3d5a99' },
                 };
                 const rzp = new window.Razorpay(options);
-                rzp.on('payment.failed', (resp) =>
-                    reject(new Error(resp.error?.description || 'Payment failed'))
-                );
+                rzp.on('payment.failed', (failResp) => {
+                    // Razorpay fires payment.failed on user cancellation too —
+                    // treat cancellation silently, only show real payment errors
+                    const reason = failResp?.error?.reason || '';
+                    const isCancelled = reason === 'payment_cancelled' ||
+                        (failResp?.error?.description || '').toLowerCase().includes('cancel');
+                    reject(new Error(isCancelled ? '__CANCELLED__' : (failResp?.error?.description || 'Payment failed')));
+                });
                 rzp.open();
             });
         } catch (err) {
-            if (err.message !== 'Payment cancelled') {
+            if (err.message !== '__CANCELLED__') {
                 const msg = err.response?.data?.message || err.message || 'Payment failed. Please try again.';
                 setPaymentErr(msg);
             }
