@@ -1,7 +1,12 @@
 # JBE Commerce — Frontend
 
 React + Vite single-page application for the JBE Commerce e-commerce platform.
-Live URL: **https://jbe-commerceapp.netlify.app**
+
+| | |
+|---|---|
+| **Live URL** | https://jbe-commerceapp.netlify.app |
+| **Backend API** | https://ecom-backend-3sh8.onrender.com |
+| **Repo** | https://github.com/Jayabharathreddys/E-com-Frontend-Project |
 
 ---
 
@@ -69,7 +74,9 @@ npm run build
 | `/` | Product listing (all) | No | Paginated, 6 per page |
 | `/products/:categoryName` | Product listing by category | No | |
 | `/signup` | Register | No | Full field validation |
-| `/login` | Sign In | No | Returns to original page after login |
+| `/login` | Login | No | Returns to original page after login |
+| `/forgot-password` | Forgot Password | No | Email → OTP sent in background |
+| `/reset-password/:userId` | Reset Password | No | OTP + new password form |
 | `/cart` | Cart + Checkout | Yes | Redirects to `/login` if not authenticated |
 | `/unauthorized` | 401 error page | No | |
 | `*` | 404 Not Found | No | |
@@ -172,9 +179,15 @@ npx vitest run --reporter=verbose               # detailed output
 |-----------|------:|----------------|
 | `Login.test.jsx` | 8 | Email/password validation, server error, redirect |
 | `Signup.test.jsx` | 7 | All field validations, server error, redirect to login |
+| `ForgotPassword.test.jsx` | 10 | Email validation, user-not-found, success screen, OTP sent |
+| `ResetPassword.test.jsx` | 13 | OTP/password validation, wrong OTP error, redirect on success |
 | `ErrorPages.test.jsx` | 9 | 404 code/heading/link, 401 code/heading/links |
 | `RequireAuth.test.jsx` | 3 | Auth guard redirects and allows access |
 | `Pagination.test.jsx` | 11 | Active state, arrows, disabled states, aria |
 | `Product.test.jsx` | 8 | Title, price, image, rating present/absent |
 | `CartItems.test.jsx` | 11 | Unauth state, empty cart, items, total, pay flow |
-| `Navbar.test.jsx` | 6 | Login link, logout button, category links, cart |
+| `CartItem.test.jsx` | 7 | Price rendering (Rs.), string price guard, total, image |
+| `Navbar.test.jsx` | 6 | Login link, logout button, category links, cart badge |
+| `CartProvider.test.jsx` | 5 | Add, remove, clear cart operations |
+| `useFetchData.test.jsx` | 4 | Loading state, data, error, fallback to initialData |
+| `AddToCart.test.jsx` | 4 | Add button, quantity display, remove |
