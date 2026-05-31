@@ -9,14 +9,18 @@ import axios from 'axios';
 import urlConfig from '../../utils/urlConfig';
 
 const Navbar = ({categories, isLoading}) => {
-    const { totalQuantity } = useCart();
+    const { totalQuantity, clearCart } = useCart();
     const { user, logout } = useAuth();
     const navigate = useNavigate();
+
+    // Extract display name: login response stores {user:{name:...}} or {name:...}
+    const displayName = user?.user?.name || user?.name || null;
 
     const handleLogout = async () => {
         try {
             await axios.post(`${urlConfig.ORDR_URL.replace('/api/booking', '')}/api/auth/logout`, {}, { withCredentials: true });
         } catch (_) { /* ignore */ }
+        clearCart();   // clear cart badge on logout
         logout();
         navigate('/login');
     };
@@ -34,13 +38,19 @@ const Navbar = ({categories, isLoading}) => {
                 </ul>
             </div>
             <div className='nav-right'>
-                {user
-                    ? <button className="nav-logout-btn" onClick={handleLogout}>Logout</button>
-                    : <Link to="/login" className="nav-link nav-login-link">Login</Link>
-                }
+                {user ? (
+                    <>
+                        {displayName && (
+                            <span className="nav-greeting">Hi, {displayName}!</span>
+                        )}
+                        <button className="nav-logout-btn" onClick={handleLogout}>Logout</button>
+                    </>
+                ) : (
+                    <Link to="/login" className="nav-link nav-login-link">Login</Link>
+                )}
                 <Link to="/cart" className="cart-icon-container">
                     <FaOpencart className="cart-icon" />
-                    {totalQuantity ? <div className='cart-badge'>{totalQuantity}</div> : <></>}
+                    {totalQuantity > 0 && <div className='cart-badge'>{totalQuantity}</div>}
                 </Link>
             </div>
         </nav>
