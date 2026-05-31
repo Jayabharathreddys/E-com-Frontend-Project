@@ -45,6 +45,11 @@ function CartItems() {
         );
     }
 
+    const getAuthHeaders = () => {
+        const token = sessionStorage.getItem('auth_token');
+        return token ? { Authorization: `Bearer ${token}` } : {};
+    };
+
     const handlePayment = async () => {
         if (!cartItems.length) return;
         setPaymentErr('');
@@ -62,7 +67,7 @@ function CartItems() {
             const resp = await axios.post(
                 `${urlConfig.ORDR_URL}/${productId}`,
                 { priceAtThatTime, quantity: firstItem.quantity || 1 },
-                { withCredentials: true }
+                { withCredentials: true, headers: getAuthHeaders() }
             );
             const { amount, currency, id: order_id, bookingId } = resp.data;
 
@@ -86,7 +91,7 @@ function CartItems() {
                                     razorpay_signature:  paymentResponse.razorpay_signature,
                                     bookingId,
                                 },
-                                { withCredentials: true }
+                                { withCredentials: true, headers: getAuthHeaders() }
                             );
                             setSuccess(true);
                             resolve();

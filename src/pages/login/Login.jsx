@@ -41,6 +41,9 @@ function Login() {
             const resp = await axios.post(urlConfig.LOGIN_URL, { email, password }, { withCredentials: true });
             const data = resp.data;
             if (data.status === 'success') {
+                if (data.token) {
+                    sessionStorage.setItem('auth_token', data.token);
+                }
                 setAuth(data);
                 navigate(from, { replace: true });
             }
