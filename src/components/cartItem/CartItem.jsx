@@ -1,7 +1,8 @@
 import './cartItem.css';
 
 const CartItem = ({ cartData }) => {
-    const { id, title, price, quantity, image } = cartData;
+    const { id, title, quantity, image } = cartData;
+    const price      = parseFloat(cartData.price) || 0;   // guard: may arrive as string
     const totalPrice = price * quantity;
 
     return (

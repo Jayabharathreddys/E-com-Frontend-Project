@@ -60,4 +60,5 @@ const ContextProvider = ({children}) => {
     )
 }
 
+export { ContextProvider as CartProvider };   // named export for tests
 export default ContextProvider;
