@@ -4,7 +4,7 @@ React + Vite single-page application for the JBE Commerce e-commerce platform.
 
 | | |
 |---|---|
-| **Live URL** | https://jbe-commerceapp.netlify.app |
+| **Live URL** | https://e-com-frontend-project-eta.vercel.app |
 | **Backend API** | https://ecom-backend-3sh8.onrender.com |
 | **Repo** | https://github.com/Jayabharathreddys/E-com-Frontend-Project |
 
