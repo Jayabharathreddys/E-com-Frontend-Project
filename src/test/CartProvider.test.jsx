@@ -5,7 +5,7 @@ import { useCart } from '../context/cart/useCart';
 
 // Helper component to interact with cart context
 const CartConsumer = () => {
-    const { cart, totalQuantity, addToCart, removeFromCart } = useCart();
+    const { cart, totalQuantity, addToCart, removeFromCart, clearCart } = useCart();
     const product = { id: 'p1', title: 'Test Product', price: 100, image: '' };
 
     return (
@@ -16,6 +16,7 @@ const CartConsumer = () => {
             <button onClick={() => addToCart(product)}>Add</button>
             <button onClick={() => removeFromCart('p1')}>Remove</button>
             <button onClick={() => removeFromCart('nonexistent')}>Remove Unknown</button>
+            <button onClick={() => clearCart()}>Clear</button>
         </div>
     );
 };
@@ -74,6 +75,18 @@ describe('CartProvider', () => {
         // Should not throw
         expect(() => fireEvent.click(screen.getByText('Remove Unknown'))).not.toThrow();
         // State must remain unchanged
+        expect(screen.getByTestId('total-qty').textContent).toBe('0');
+        expect(screen.getByTestId('cart-size').textContent).toBe('0');
+    });
+
+    it('clearCart resets cart to empty and totalQuantity to 0', () => {
+        renderWithCart();
+        fireEvent.click(screen.getByText('Add'));
+        fireEvent.click(screen.getByText('Add'));
+        expect(screen.getByTestId('total-qty').textContent).toBe('2');
+
+        fireEvent.click(screen.getByText('Clear'));
+
         expect(screen.getByTestId('total-qty').textContent).toBe('0');
         expect(screen.getByTestId('cart-size').textContent).toBe('0');
     });

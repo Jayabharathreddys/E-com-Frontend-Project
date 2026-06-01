@@ -85,4 +85,46 @@ describe('useFetchData', () => {
         expect(result.current.error).toBeTruthy();
         expect(result.current.data).toEqual({ message: [] });
     });
+
+    it('calls AbortController.abort() when unmounted and swallows the cancel error', async () => {
+        // Spy on AbortController.prototype.abort so we can assert it was called
+        const abortSpy = vi.spyOn(AbortController.prototype, 'abort');
+
+        // Make axios.get hang until we resolve it manually (simulates slow network)
+        let rejectFn;
+        const pending = new Promise((_, reject) => {
+            rejectFn = reject;
+        });
+        axios.get.mockReturnValueOnce(pending);
+
+        // Treat CanceledError as a cancellation
+        const cancelError = Object.assign(new Error('canceled'), { name: 'CanceledError' });
+        axios.isCancel = vi.fn((err) => err.name === 'CanceledError');
+
+        const { result, unmount } = renderHook(() => useFetchData('http://test.com', []));
+
+        // Unmount triggers cleanup → abort() must fire
+        unmount();
+        expect(abortSpy).toHaveBeenCalledTimes(1);
+
+        // Simulate axios throwing a CanceledError after abort (as it does in real usage)
+        rejectFn(cancelError);
+        // Allow the microtask queue to flush
+        await new Promise((r) => setTimeout(r, 0));
+
+        // State must remain at initial values — cancel error is silently swallowed
+        expect(result.current.error).toBeNull();
+        expect(result.current.data).toEqual([]);
+
+        abortSpy.mockRestore();
+    });
+
+    it('passes an AbortSignal to axios.get', () => {
+        axios.get.mockResolvedValueOnce({ data: [] });
+        renderHook(() => useFetchData('http://test.com', []));
+        expect(axios.get).toHaveBeenCalledWith(
+            'http://test.com',
+            expect.objectContaining({ signal: expect.any(AbortSignal) })
+        );
+    });
 });
