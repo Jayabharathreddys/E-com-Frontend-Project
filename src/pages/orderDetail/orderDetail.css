@@ -1,0 +1,331 @@
+.order-detail-page {
+    max-width: 860px;
+    margin: 2rem auto;
+    padding: 0 1.5rem 6rem;
+    min-height: 60vh;
+}
+
+.order-back-link {
+    display: inline-block;
+    color: #3d5a99;
+    font-size: 1.3rem;
+    text-decoration: none;
+    margin-bottom: 1.6rem;
+}
+.order-back-link:hover {
+    text-decoration: underline;
+}
+
+.order-detail-card {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    padding: 2.4rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+}
+
+/* Header */
+.order-detail-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 2.4rem;
+    padding-bottom: 1.6rem;
+    border-bottom: 1px solid #eee;
+}
+
+.order-detail-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #222;
+}
+
+.order-detail-id {
+    font-size: 1.1rem;
+    color: #666;
+    font-family: monospace;
+    margin-top: 0.4rem;
+}
+
+.order-detail-date {
+    font-size: 1.2rem;
+    color: #888;
+    margin-top: 0.2rem;
+}
+
+/* Badges */
+.order-badge {
+    font-size: 1.2rem;
+    font-weight: 600;
+    padding: 0.4rem 1.2rem;
+    border-radius: 20px;
+    white-space: nowrap;
+}
+.badge-confirmed {
+    background: #e6f4ea;
+    color: #2d7a3a;
+}
+.badge-pending {
+    background: #fff8e1;
+    color: #b07d00;
+}
+.badge-failed {
+    background: #fdecea;
+    color: #b71c1c;
+}
+
+/* Timeline */
+.order-timeline {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 2.4rem;
+    padding: 1.6rem;
+    background: #f8f9fc;
+    border-radius: 10px;
+    overflow-x: auto;
+    gap: 0;
+}
+
+.timeline-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    position: relative;
+    min-width: 7rem;
+}
+
+.timeline-dot {
+    width: 3.2rem;
+    height: 3.2rem;
+    border-radius: 50%;
+    background: #ddd;
+    color: #999;
+    font-size: 1.1rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 1;
+}
+
+.timeline-step.done .timeline-dot,
+.timeline-step.current .timeline-dot {
+    background: #3d5a99;
+    color: #fff;
+}
+
+.timeline-label {
+    font-size: 1.1rem;
+    color: #888;
+    text-align: center;
+    margin-top: 0.6rem;
+    max-width: 8rem;
+}
+
+.timeline-step.done .timeline-label,
+.timeline-step.current .timeline-label {
+    color: #3d5a99;
+    font-weight: 600;
+}
+
+.timeline-connector {
+    position: absolute;
+    top: 1.6rem;
+    left: 50%;
+    right: -50%;
+    height: 3px;
+    background: #ddd;
+    z-index: 0;
+}
+.timeline-connector.done {
+    background: #3d5a99;
+}
+
+/* Failed banner */
+.order-failed-banner {
+    background: #fdecea;
+    color: #b71c1c;
+    border-radius: 8px;
+    padding: 1.2rem 1.6rem;
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin-bottom: 2rem;
+}
+
+/* Product section */
+.order-section-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 1.2rem;
+}
+
+.order-product-section,
+.order-summary-section {
+    padding: 1.6rem 0;
+    border-bottom: 1px solid #eee;
+    margin-bottom: 1.6rem;
+}
+
+.order-product-row {
+    display: flex;
+    align-items: center;
+    gap: 1.6rem;
+}
+
+.order-product-img-lg {
+    width: 10rem;
+    height: 10rem;
+    object-fit: contain;
+    border-radius: 8px;
+    border: 1px solid #eee;
+    background: #f9f9f9;
+    flex-shrink: 0;
+}
+
+.order-product-details {
+    flex: 1;
+}
+
+.order-product-name-lg {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #222;
+    margin-bottom: 0.4rem;
+}
+
+.order-product-qty,
+.order-product-price {
+    font-size: 1.2rem;
+    color: #666;
+}
+
+.order-product-total-col {
+    text-align: right;
+}
+
+.order-product-total-lg {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #3d5a99;
+}
+
+/* Payment summary */
+.order-summary-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 1.3rem;
+    color: #555;
+    padding: 0.4rem 0;
+}
+
+.order-summary-total {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #222;
+    padding-top: 0.8rem;
+    border-top: 1px dashed #ddd;
+    margin-top: 0.4rem;
+}
+
+.order-free {
+    color: #2d7a3a;
+    font-weight: 600;
+}
+
+.order-payment-id {
+    font-size: 1.1rem;
+    color: #888;
+    margin-top: 0.8rem;
+}
+.order-payment-id span {
+    font-family: monospace;
+    color: #3d5a99;
+}
+
+/* Actions */
+.order-detail-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.order-action-btn {
+    padding: 1rem 2.2rem;
+    font-size: 1.3rem;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition:
+        background 0.2s,
+        color 0.2s;
+    border: 2px solid transparent;
+}
+
+.order-action-btn.primary {
+    background: #3d5a99;
+    color: #fff;
+    border-color: #3d5a99;
+}
+.order-action-btn.primary:hover {
+    background: #2e4377;
+}
+.order-action-btn.primary:disabled {
+    background: #888;
+    border-color: #888;
+    cursor: not-allowed;
+}
+
+.order-action-btn.secondary {
+    background: #e8f0fe;
+    color: #3d5a99;
+    border-color: #e8f0fe;
+}
+.order-action-btn.secondary:hover {
+    background: #d0e1fd;
+}
+
+.order-action-btn.danger {
+    background: #fdecea;
+    color: #b71c1c;
+    border-color: #fdecea;
+}
+.order-action-btn.danger:hover {
+    background: #fbc8c4;
+}
+
+.order-action-btn.outline {
+    background: transparent;
+    color: #3d5a99;
+    border-color: #3d5a99;
+}
+.order-action-btn.outline:hover {
+    background: #3d5a99;
+    color: #fff;
+}
+
+.order-detail-err {
+    color: #cc0000;
+    font-size: 1.2rem;
+    margin-top: 0.8rem;
+}
+
+.order-detail-error {
+    text-align: center;
+    padding: 4rem 2rem;
+}
+.order-detail-error p {
+    font-size: 1.4rem;
+    color: #666;
+    margin-bottom: 1.2rem;
+}

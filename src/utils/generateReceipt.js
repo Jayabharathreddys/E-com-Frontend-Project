@@ -15,6 +15,10 @@
 export function generateReceipt(data, jsPDFClass) {
     const { orderId, paymentId, customerName, customerEmail, items, totalAmount, date } = data;
 
+    // Defensive guard: ensure items is always an array (prevents forEach crash
+    // if caller passes null, undefined, or a non-array value)
+    const itemsArray = Array.isArray(items) ? items : [];
+
     const doc = new jsPDFClass({ orientation: 'portrait', unit: 'mm', format: 'a4' });
 
     const pageW = doc.internal.pageSize.getWidth();
@@ -95,7 +99,7 @@ export function generateReceipt(data, jsPDFClass) {
     // Reserve space for the grand-total block (~24 mm) + footer (~14 mm)
     const rowBottomLimit = pageH - margin - 38;
 
-    items.forEach((item, idx) => {
+    itemsArray.forEach((item, idx) => {
         const unitPrice = parseFloat(item.price) || 0;
         const qty = item.quantity || 1;
         const lineTotal = unitPrice * qty;
