@@ -142,11 +142,22 @@ function CartItems() {
             if (failed.length > 0) {
                 // Cancel any bookings that did succeed so the backend doesn't
                 // hold orphaned records waiting for a payment that will never come.
-                await Promise.allSettled(
-                    succeeded
-                        .filter((b) => b.bookingId)
-                        .map((b) => axios.delete(`${urlConfig.ORDER_URL}/${b.bookingId}`, authOpts))
+                const bookingsToCancel = succeeded.filter((b) => b.bookingId);
+                const cancelResults = await Promise.allSettled(
+                    bookingsToCancel.map((b) =>
+                        axios.delete(`${urlConfig.ORDER_URL}/${b.bookingId}`, authOpts)
+                    )
                 );
+                cancelResults.forEach((result, i) => {
+                    if (result.status === 'rejected') {
+                        const booking = bookingsToCancel[i];
+                        console.error('Rollback failed for booking:', {
+                            bookingId: booking?.bookingId,
+                            productId: booking?.productId,
+                            reason: result.reason?.response?.data ?? result.reason?.message,
+                        });
+                    }
+                });
                 const firstErr = failed[0].reason;
                 throw new Error(
                     firstErr?.response?.data?.message ||
