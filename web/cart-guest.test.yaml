@@ -1,0 +1,11 @@
+fileType: momentic/test/v2
+id: jbe-cart-guest-redirect
+version: 1.0.0
+description: Cart page redirects unauthenticated user to login
+defaultEnv: jbe
+disabled: false
+viewport: 1920, 1080
+browserType: Chromium
+steps:
+  - navigate: "{{env.BASE_URL}}/cart"
+  - assert: Either the login page is shown or a message asking the user to log in is visible

@@ -12,7 +12,7 @@ const mockCartData = {
 
 const mockCartDataStringPrice = {
     ...mockCartData,
-    price: '109.99',   // price as string (from API/context)
+    price: '109.99', // price as string (from API/context)
 };
 
 describe('CartItem', () => {

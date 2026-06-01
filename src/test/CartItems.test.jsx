@@ -10,24 +10,31 @@ vi.mock('axios');
 
 // Mock Razorpay globally
 const mockRazorpayOpen = vi.fn();
-const mockRazorpayOn   = vi.fn();
+const mockRazorpayOn = vi.fn();
 global.Razorpay = vi.fn(() => ({
     open: mockRazorpayOpen,
-    on:   mockRazorpayOn,
+    on: mockRazorpayOn,
 }));
 
 // ── Shared mock data ──────────────────────────────────────────────────────────
-const mockUser    = { name: 'Alice', email: 'alice@test.com' };
+const mockUser = { name: 'Alice', email: 'alice@test.com' };
 const mockClearCart = vi.fn();
 const mockAddToCart = vi.fn();
 const mockRemoveFromCart = vi.fn();
 
 const singleItemCart = {
-    prod1: { _id: 'prod1', id: 'prod1', title: 'Test Item', name: 'Test Item', price: '100', quantity: 1 },
+    prod1: {
+        _id: 'prod1',
+        id: 'prod1',
+        title: 'Test Item',
+        name: 'Test Item',
+        price: '100',
+        quantity: 1,
+    },
 };
 
 const multiItemCart = {
-    prod1: { _id: 'prod1', id: 'prod1', title: 'Test Item',   price: '100', quantity: 1 },
+    prod1: { _id: 'prod1', id: 'prod1', title: 'Test Item', price: '100', quantity: 1 },
     prod2: { _id: 'prod2', id: 'prod2', title: 'Second Item', price: '200', quantity: 2 },
 };
 
@@ -35,8 +42,17 @@ const multiItemCart = {
 const renderCart = (cart = singleItemCart, user = mockUser) =>
     render(
         <AuthContext.Provider value={{ user }}>
-            <CartContext.Provider value={{ cart, addToCart: mockAddToCart, removeFromCart: mockRemoveFromCart, clearCart: mockClearCart }}>
-                <MemoryRouter><CartItems /></MemoryRouter>
+            <CartContext.Provider
+                value={{
+                    cart,
+                    addToCart: mockAddToCart,
+                    removeFromCart: mockRemoveFromCart,
+                    clearCart: mockClearCart,
+                }}
+            >
+                <MemoryRouter>
+                    <CartItems />
+                </MemoryRouter>
             </CartContext.Provider>
         </AuthContext.Provider>
     );
@@ -74,7 +90,7 @@ describe('CartItems — authenticated with items', () => {
 
     it('shows Processing... and disables button while payment loads', async () => {
         axios.post.mockResolvedValueOnce({
-            data: { id: 'order_123', currency: 'INR', amount: 10000, bookingId: 'b1' }
+            data: { id: 'order_123', currency: 'INR', amount: 10000, bookingId: 'b1' },
         });
         mockRazorpayOpen.mockImplementation(() => {}); // stays open
         renderCart();
@@ -85,7 +101,7 @@ describe('CartItems — authenticated with items', () => {
 
     it('shows error when booking API fails', async () => {
         axios.post.mockRejectedValueOnce({
-            response: { data: { message: 'Razorpay not configured' } }
+            response: { data: { message: 'Razorpay not configured' } },
         });
         renderCart();
         fireEvent.click(screen.getByText('Pay Now'));
@@ -94,7 +110,7 @@ describe('CartItems — authenticated with items', () => {
 
     it('calls booking API with priceAtThatTime and correct productId', async () => {
         axios.post.mockResolvedValueOnce({
-            data: { id: 'order_123', currency: 'INR', amount: 10000, bookingId: 'b1' }
+            data: { id: 'order_123', currency: 'INR', amount: 10000, bookingId: 'b1' },
         });
         renderCart();
         fireEvent.click(screen.getByText('Pay Now'));
@@ -111,11 +127,11 @@ describe('CartItems — authenticated with items', () => {
     it('creates one booking per cart item (multi-item checkout)', async () => {
         // prod1 booking
         axios.post.mockResolvedValueOnce({
-            data: { id: 'order_1', currency: 'INR', amount: 10000, bookingId: 'b1' }
+            data: { id: 'order_1', currency: 'INR', amount: 10000, bookingId: 'b1' },
         });
         // prod2 booking
         axios.post.mockResolvedValueOnce({
-            data: { id: 'order_2', currency: 'INR', amount: 40000, bookingId: 'b2' }
+            data: { id: 'order_2', currency: 'INR', amount: 40000, bookingId: 'b2' },
         });
         mockRazorpayOpen.mockImplementation(() => {});
 
@@ -135,16 +151,21 @@ describe('CartItems — authenticated with items', () => {
 
     it('sends all bookingIds to verify endpoint after multi-item checkout', async () => {
         axios.post
-            .mockResolvedValueOnce({ data: { id: 'o1', currency: 'INR', amount: 10000, bookingId: 'b1' } })
-            .mockResolvedValueOnce({ data: { id: 'o2', currency: 'INR', amount: 40000, bookingId: 'b2' } });
+            .mockResolvedValueOnce({
+                data: { id: 'o1', currency: 'INR', amount: 10000, bookingId: 'b1' },
+            })
+            .mockResolvedValueOnce({
+                data: { id: 'o2', currency: 'INR', amount: 40000, bookingId: 'b2' },
+            });
 
         // Simulate Razorpay calling the handler with a payment response
         global.Razorpay = vi.fn(({ handler }) => ({
-            open: () => handler({
-                razorpay_order_id:   'pay_order_id',
-                razorpay_payment_id: 'pay_id',
-                razorpay_signature:  'sig',
-            }),
+            open: () =>
+                handler({
+                    razorpay_order_id: 'pay_order_id',
+                    razorpay_payment_id: 'pay_id',
+                    razorpay_signature: 'sig',
+                }),
             on: vi.fn(),
         }));
         // Verify call
@@ -154,9 +175,7 @@ describe('CartItems — authenticated with items', () => {
         fireEvent.click(screen.getByText('Pay Now'));
 
         await waitFor(() => {
-            const verifyCalls = axios.post.mock.calls.filter(([url]) =>
-                url.includes('/verify')
-            );
+            const verifyCalls = axios.post.mock.calls.filter(([url]) => url.includes('/verify'));
             expect(verifyCalls).toHaveLength(1);
             expect(verifyCalls[0][1]).toMatchObject({
                 bookingIds: expect.arrayContaining(['b1', 'b2']),
@@ -170,8 +189,17 @@ describe('CartItems — unauthenticated', () => {
     it('shows login prompt when user is null', () => {
         render(
             <AuthContext.Provider value={{ user: null }}>
-                <CartContext.Provider value={{ cart: {}, addToCart: vi.fn(), removeFromCart: vi.fn(), clearCart: vi.fn() }}>
-                    <MemoryRouter><CartItems /></MemoryRouter>
+                <CartContext.Provider
+                    value={{
+                        cart: {},
+                        addToCart: vi.fn(),
+                        removeFromCart: vi.fn(),
+                        clearCart: vi.fn(),
+                    }}
+                >
+                    <MemoryRouter>
+                        <CartItems />
+                    </MemoryRouter>
                 </CartContext.Provider>
             </AuthContext.Provider>
         );

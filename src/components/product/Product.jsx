@@ -1,10 +1,10 @@
-import AddToCart from "../addToCart/AddToCart";
+import AddToCart from '../addToCart/AddToCart';
 import './product.css';
 
 const StarRating = ({ rating }) => {
     if (!rating) return null;
-    const full  = Math.floor(rating);
-    const half  = rating - full >= 0.5;
+    const full = Math.floor(rating);
+    const half = rating - full >= 0.5;
     const empty = 5 - full - (half ? 1 : 0);
     return (
         <div className="product-stars" aria-label={`Rating: ${rating.toFixed(1)} out of 5`}>
@@ -22,10 +22,14 @@ const Product = ({ product }) => (
             className="product-image"
             src={product.image}
             alt={product.title}
-            onError={e => { e.target.src = 'https://via.placeholder.com/150?text=No+Image'; }}
+            onError={(e) => {
+                e.target.src = 'https://via.placeholder.com/150?text=No+Image';
+            }}
         />
         <div className="product-details">
-            <div className="product-title" title={product.title}>{product.title}</div>
+            <div className="product-title" title={product.title}>
+                {product.title}
+            </div>
             <StarRating rating={product.averageRating} />
             <div className="buy-item">
                 <div className="product-price">Rs. {Number(product.price).toFixed(2)}</div>

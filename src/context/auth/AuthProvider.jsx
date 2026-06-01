@@ -1,5 +1,5 @@
-import { useState } from "react";
-import AuthContext from "./AuthContext";
+import { useState } from 'react';
+import AuthContext from './AuthContext';
 
 // AuthProvider is the named export used throughout the app.
 // AuthContext is the default export for useAuth to import directly.
@@ -8,7 +8,9 @@ export const AuthProvider = ({ children }) => {
         try {
             const stored = sessionStorage.getItem('auth_user');
             return stored ? JSON.parse(stored) : null;
-        } catch { return null; }
+        } catch {
+            return null;
+        }
     });
 
     const setAuth = (userData) => {
@@ -24,9 +26,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ user, setAuth, logout }}>
-            {children}
-        </AuthContext.Provider>
+        <AuthContext.Provider value={{ user, setAuth, logout }}>{children}</AuthContext.Provider>
     );
 };
 

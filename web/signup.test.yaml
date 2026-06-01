@@ -1,0 +1,13 @@
+fileType: momentic/test/v2
+id: jbe-signup-form-validation
+version: 1.0.0
+description: Signup page renders and shows validation error on empty submit
+defaultEnv: jbe
+disabled: false
+viewport: 1920, 1080
+browserType: Chromium
+steps:
+  - navigate: "{{env.BASE_URL}}/signup"
+  - assert: Name, Email, Password, and Confirm Password input fields are visible
+  - click: Sign Up submit button
+  - assert: A validation error message is visible saying name is required

@@ -43,7 +43,11 @@ describe('useFetchData', () => {
 
     it('sets isLoading true during fetch', async () => {
         let resolveFn;
-        axios.get.mockReturnValueOnce(new Promise(r => { resolveFn = r; }));
+        axios.get.mockReturnValueOnce(
+            new Promise((r) => {
+                resolveFn = r;
+            })
+        );
 
         const { result } = renderHook(() => useFetchData('http://test.com', []));
         expect(result.current.isLoading).toBe(true);
@@ -53,16 +57,15 @@ describe('useFetchData', () => {
     });
 
     it('re-fetches when url changes', async () => {
-        const firstData  = { message: [{ name: 'A' }] };
+        const firstData = { message: [{ name: 'A' }] };
         const secondData = { message: [{ name: 'B' }] };
         axios.get
             .mockResolvedValueOnce({ data: firstData })
             .mockResolvedValueOnce({ data: secondData });
 
-        const { result, rerender } = renderHook(
-            ({ url }) => useFetchData(url, {}),
-            { initialProps: { url: 'http://test.com/one' } }
-        );
+        const { result, rerender } = renderHook(({ url }) => useFetchData(url, {}), {
+            initialProps: { url: 'http://test.com/one' },
+        });
 
         await waitFor(() => expect(result.current.data).toEqual(firstData));
 

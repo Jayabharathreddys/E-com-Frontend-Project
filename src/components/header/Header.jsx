@@ -1,14 +1,14 @@
-import Navbar from "../navbar/Navbar";
+import Navbar from '../navbar/Navbar';
 import './header.css';
 
-const Header = ({ categories, isLoading}) => {
+const Header = ({ categories, isLoading }) => {
     return (
         <>
-          <header className="header">
-            <Navbar categories= {categories} isLoading={isLoading}/>
-          </header> 
+            <header className="header">
+                <Navbar categories={categories} isLoading={isLoading} />
+            </header>
         </>
-    )
-}
+    );
+};
 
 export default Header;

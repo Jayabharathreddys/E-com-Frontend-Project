@@ -1,8 +1,26 @@
+.container {
+    padding: 2rem;
+    min-height: 70vh;
+}
+
 .product-list {
     display: flex;
     flex-wrap: wrap;
-    width: 100%;
-    gap: 1rem;
-    padding: 2rem 0;
+    gap: 2rem;
     justify-content: flex-start;
+    padding: 2rem 0;
+}
+
+.product-empty,
+.product-error {
+    display: grid;
+    place-items: center;
+    min-height: 40vh;
+    font-size: 1.8rem;
+    color: var(--color-text-muted, #666);
+    text-align: center;
+}
+
+.product-error {
+    color: var(--color-danger, #c0392b);
 }

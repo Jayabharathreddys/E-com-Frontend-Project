@@ -9,12 +9,15 @@ import axios from 'axios';
 vi.mock('axios');
 
 // Wrapper that lets us control auth state via sessionStorage
-const NavbarWrapper = ({ user = null, categories = ['Electronics', 'Clothing'] }) => (
+const NavbarWrapper = ({ categories = ['Electronics', 'Clothing'] }) => (
     <AuthProvider>
         <CartProvider>
             <MemoryRouter initialEntries={['/']}>
                 <Routes>
-                    <Route path="*" element={<Navbar categories={categories} isLoading={false} />} />
+                    <Route
+                        path="*"
+                        element={<Navbar categories={categories} isLoading={false} />}
+                    />
                     <Route path="/login" element={<div>Login Page</div>} />
                 </Routes>
             </MemoryRouter>

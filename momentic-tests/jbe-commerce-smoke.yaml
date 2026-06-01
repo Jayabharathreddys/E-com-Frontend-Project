@@ -1,0 +1,50 @@
+fileType: momentic/test/v2
+id: jbe-commerce-smoke
+name: JBE Commerce — Quick Smoke Test (Free Tier)
+description: >
+  Lightweight smoke test for free-tier usage. Covers the 5 most critical checks
+  in under 2 minutes without signup/login (to avoid using test run quota on auth).
+
+steps:
+  # 1. Home page
+  - navigate:
+      url: https://jbe-commerceapp.netlify.app/
+      waitFor: networkIdle
+
+  - check:
+      goal: >
+        Products are visible on the page. At least one product card shows a title,
+        a price starting with "Rs.", and an Add to Cart button.
+
+  - check:
+      goal: >
+        The navbar shows category links (Electronics, Jewelery, Men's Clothing,
+        Women's Clothing) and a Login button on the right.
+
+  # 2. Category filter
+  - act:
+      goal: Click on the "Jewelery" category in the navbar.
+      postcondition: Products update to show only Jewelery items. URL contains "jewelery".
+
+  # 3. Login page
+  - navigate:
+      url: https://jbe-commerceapp.netlify.app/login
+      waitFor: networkIdle
+
+  - check:
+      goal: >
+        Login page shows a "Login" heading, Email field, Password field,
+        "Forgot password?" link, "Create a new account?" link, and a Login button.
+
+  # 4. Forgot password page
+  - act:
+      goal: Click the "Forgot password?" link.
+      postcondition: The Forgot Password page shows a "Send OTP" button and email input.
+
+  # 5. 404 page
+  - navigate:
+      url: https://jbe-commerceapp.netlify.app/xyz-does-not-exist
+      waitFor: networkIdle
+
+  - check:
+      goal: A 404 "Page Not Found" error page is shown with a "Go Home" link.
