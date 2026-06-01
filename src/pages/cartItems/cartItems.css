@@ -87,6 +87,30 @@
     height: 50vh;
     font-size: 1.5rem;
     text-align: center;
+    gap: 1.6rem;
+}
+
+.receipt-download-btn {
+    margin-top: 0.4rem;
+    background-color: #3d5a99;
+    color: #fff;
+    border: none;
+    padding: 1.1rem 2.8rem;
+    font-size: 1.3rem;
+    font-weight: bold;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    text-decoration: none;
+}
+
+.receipt-download-btn:hover {
+    background-color: #2e4377;
+}
+
+.receipt-download-btn:disabled {
+    background-color: #888;
+    cursor: not-allowed;
 }
 
 /* Legacy class names kept for backward compatibility */

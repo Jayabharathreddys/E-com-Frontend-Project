@@ -9,6 +9,8 @@ const urlConfig = {
     SIGNUP_URL: BASE_URL + '/api/auth/signup',
     ALL_PRODUCT_URL: BASE_URL + '/api/product',
     ORDER_URL: BASE_URL + '/api/booking',
+    MY_ORDERS_URL: BASE_URL + '/api/booking/my-orders',
+    ORDER_DETAIL_URL: BASE_URL + '/api/booking/detail',
     FORGOT_PASSWORD_URL: BASE_URL + '/api/auth/forgetpassword',
     RESET_PASSWORD_URL: BASE_URL + '/api/auth/resetPassword',
 };
