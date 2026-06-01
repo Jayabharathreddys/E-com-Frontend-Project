@@ -31,7 +31,7 @@ function formatDate(iso) {
 
 function OrderCard({ order }) {
     const product = order.product || {};
-    const image = product.productImages?.[0] || 'https://via.placeholder.com/80?text=No+Image';
+    const image = product.productImages?.[0] || 'https://placehold.co/80x80?text=No+Image';
     const badge = STATUS_BADGE[order.status] || { cls: 'badge-pending', text: order.status };
     const amount = (order.priceAtThatTime * (order.quantity || 1)).toFixed(2);
 
@@ -47,7 +47,7 @@ function OrderCard({ order }) {
                     alt={product.name || 'Product'}
                     className="order-product-img"
                     onError={(e) => {
-                        e.target.src = 'https://via.placeholder.com/80?text=No+Image';
+                        e.target.src = 'https://placehold.co/80x80?text=No+Image';
                     }}
                 />
                 <div className="order-product-info">

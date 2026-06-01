@@ -20,7 +20,7 @@ const mockOrders = [
         product: {
             name: 'Test Sneakers',
             price: 99.99,
-            productImages: ['https://via.placeholder.com/80'],
+            productImages: ['https://placehold.co/80x80'],
         },
     },
     {

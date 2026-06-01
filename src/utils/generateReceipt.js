@@ -50,7 +50,10 @@ export function generateReceipt(data, jsPDFClass) {
     doc.setFont('helvetica', 'bold');
     doc.text('Date:', col1, y);
     doc.setFont('helvetica', 'normal');
-    doc.text(new Date(date).toLocaleString('en-IN'), col1 + 20, y);
+    // Guard against missing or unparseable date (would print "Invalid Date")
+    const parsedDate = date ? new Date(date) : new Date();
+    const dateStr = Number.isNaN(parsedDate.getTime()) ? '—' : parsedDate.toLocaleString('en-IN');
+    doc.text(dateStr, col1 + 20, y);
 
     doc.setFont('helvetica', 'bold');
     doc.text('Order ID:', col2, y);
@@ -137,7 +140,8 @@ export function generateReceipt(data, jsPDFClass) {
     doc.setFontSize(11);
     doc.text('Grand Total:', col3 - 10, y);
     doc.setTextColor(61, 90, 153);
-    doc.text(`Rs. ${Number(totalAmount).toFixed(2)}`, col4, y);
+    // Guard: Number(undefined) is NaN; fall back to 0 to avoid "Rs. NaN"
+    doc.text(`Rs. ${(parseFloat(totalAmount) || 0).toFixed(2)}`, col4, y);
     y += 16;
 
     // ── Footer ────────────────────────────────────────────────────────────────

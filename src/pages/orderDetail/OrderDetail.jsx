@@ -121,7 +121,7 @@ export default function OrderDetail() {
     const badge = STATUS_BADGE[order.status] || { cls: 'badge-pending', text: order.status };
     const progress = STATUS_PROGRESS[order.status] ?? 0;
     const product = order.product || {};
-    const image = product.productImages?.[0] || 'https://via.placeholder.com/120?text=No+Image';
+    const image = product.productImages?.[0] || 'https://placehold.co/120x120?text=No+Image';
     const amount = (order.priceAtThatTime * (order.quantity || 1)).toFixed(2);
 
     return (
@@ -181,7 +181,7 @@ export default function OrderDetail() {
                             alt={product.name}
                             className="order-product-img-lg"
                             onError={(e) => {
-                                e.target.src = 'https://via.placeholder.com/120?text=No+Image';
+                                e.target.src = 'https://placehold.co/120x120?text=No+Image';
                             }}
                         />
                         <div className="order-product-details">

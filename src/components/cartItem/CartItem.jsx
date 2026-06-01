@@ -13,7 +13,7 @@ const CartItem = ({ cartData }) => {
                         src={image}
                         alt={title}
                         onError={(e) => {
-                            e.target.src = 'https://via.placeholder.com/80?text=No+Image';
+                            e.target.src = 'https://placehold.co/80x80?text=No+Image';
                         }}
                     />
                 </div>

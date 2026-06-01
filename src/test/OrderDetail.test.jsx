@@ -27,7 +27,7 @@ const confirmedOrder = {
         _id: 'prod1',
         name: 'Test Sneakers',
         price: 99.99,
-        productImages: ['https://via.placeholder.com/120'],
+        productImages: ['https://placehold.co/120x120'],
     },
 };
 
@@ -160,7 +160,8 @@ describe('OrderDetail — failed order', () => {
     it('does NOT render timeline for failed order', async () => {
         axios.get.mockResolvedValueOnce({ data: { status: 'success', data: failedOrder } });
         renderDetail('ord456');
-        await waitFor(() => failedOrder); // wait for render
+        // Wait for a failed-order-specific element before asserting absence of timeline
+        await waitFor(() => expect(screen.getByText('✗ Failed')).toBeInTheDocument());
         expect(screen.queryByText('Order Placed')).not.toBeInTheDocument();
     });
 });

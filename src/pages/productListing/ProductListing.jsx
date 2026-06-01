@@ -21,7 +21,7 @@ const ProductListing = () => {
             ...p,
             id: p._id,
             title: p.name,
-            image: p.productImages?.[0] || 'https://via.placeholder.com/150',
+            image: p.productImages?.[0] || 'https://placehold.co/150x150',
             price: parseFloat(p.price) || 0,
         }));
 
