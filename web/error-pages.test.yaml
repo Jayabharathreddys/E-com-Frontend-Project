@@ -1,0 +1,14 @@
+fileType: momentic/test/v2
+id: jbe-error-pages-404
+version: 1.0.0
+description: 404 page shows for unknown routes with a Go Home link
+defaultEnv: jbe
+disabled: false
+viewport: 1920, 1080
+browserType: Chromium
+steps:
+  - navigate: "{{env.BASE_URL}}/this-page-does-not-exist"
+  - assert: A 404 or Page Not Found error message is visible
+  - assert: A Go Home link or button is visible
+  - click: Go Home link
+  - assert: The home page is displayed

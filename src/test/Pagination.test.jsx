@@ -3,7 +3,11 @@ import { MemoryRouter } from 'react-router-dom';
 import Pagination from '../components/pagination/Pagination';
 
 const renderPagination = (props) =>
-    render(<MemoryRouter><Pagination {...props} /></MemoryRouter>);
+    render(
+        <MemoryRouter>
+            <Pagination {...props} />
+        </MemoryRouter>
+    );
 
 const defaultProps = { totalPages: 5, currentPage: 1, paginate: () => {} };
 

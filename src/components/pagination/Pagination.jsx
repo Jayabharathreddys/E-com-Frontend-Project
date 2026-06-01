@@ -1,7 +1,7 @@
 import './pagination.css';
 
 const Pagination = ({ totalPages, currentPage, paginate }) => {
-    if (totalPages <= 1) return null;   // hide if only one page
+    if (totalPages <= 1) return null; // hide if only one page
 
     return (
         <nav className="page-container" aria-label="Product pages">

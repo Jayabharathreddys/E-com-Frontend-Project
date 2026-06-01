@@ -10,10 +10,10 @@ vi.mock('axios');
 // Generate N products in a given category
 const makeProducts = (n, category = 'electronics') =>
     Array.from({ length: n }, (_, i) => ({
-        _id:   `id${i}`,
-        name:  `Product ${i}`,
+        _id: `id${i}`,
+        name: `Product ${i}`,
         price: String(10 + i),
-        categories:    [category],
+        categories: [category],
         productImages: [],
         averageRating: 0,
     }));
@@ -25,7 +25,7 @@ const renderListing = (path = '/') =>
         <CartContext.Provider value={cartValue}>
             <MemoryRouter initialEntries={[path]}>
                 <Routes>
-                    <Route path="/"                       element={<ProductListing />} />
+                    <Route path="/" element={<ProductListing />} />
                     <Route path="/products/:categoryName" element={<ProductListing />} />
                 </Routes>
             </MemoryRouter>
@@ -45,7 +45,7 @@ describe('ProductListing', () => {
 
     it('shows empty state when no products match category', async () => {
         axios.get.mockResolvedValueOnce({
-            data: { message: makeProducts(2, 'clothing') }
+            data: { message: makeProducts(2, 'clothing') },
         });
         renderListing('/products/electronics');
         await waitFor(() => {
@@ -63,7 +63,7 @@ describe('ProductListing', () => {
 
     it('renders products for selected category', async () => {
         axios.get.mockResolvedValueOnce({
-            data: { message: makeProducts(3, 'electronics') }
+            data: { message: makeProducts(3, 'electronics') },
         });
         renderListing('/products/electronics');
         await waitFor(() => {
@@ -74,10 +74,7 @@ describe('ProductListing', () => {
     // Fix #2: page resets to 1 on category change
     it('resets to page 1 when category changes', async () => {
         // 12 products — enough for 2 pages (6 per page)
-        const products = [
-            ...makeProducts(6, 'electronics'),
-            ...makeProducts(6, 'clothing'),
-        ];
+        const products = [...makeProducts(6, 'electronics'), ...makeProducts(6, 'clothing')];
         axios.get.mockResolvedValue({ data: { message: products } });
 
         const { rerender } = render(

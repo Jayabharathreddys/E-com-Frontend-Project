@@ -1,0 +1,14 @@
+fileType: momentic/test/v2
+id: jbe-login-page-validation
+version: 1.0.0
+description: Login page renders and validates empty form submission
+defaultEnv: jbe
+disabled: false
+viewport: 1920, 1080
+browserType: Chromium
+steps:
+  - navigate: "{{env.BASE_URL}}/login"
+  - assert: Email and Password input fields are visible on the page
+  - assert: A Login submit button is visible
+  - click: Login submit button
+  - assert: A validation error about email being required is visible

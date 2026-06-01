@@ -16,7 +16,9 @@
     color: var(--color-primary, #2320cc);
     font-size: 1.6rem;
     cursor: pointer;
-    transition: background 0.2s, color 0.2s;
+    transition:
+        background 0.2s,
+        color 0.2s;
     display: flex;
     align-items: center;
     justify-content: center;

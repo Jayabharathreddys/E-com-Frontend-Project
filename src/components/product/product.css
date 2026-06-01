@@ -7,13 +7,15 @@
     width: 20%;
     min-width: 200px;
     background: var(--color-surface, #fff);
-    box-shadow: var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.12));
-    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: var(--shadow-sm, 0 1px 3px rgba(0, 0, 0, 0.12));
+    transition:
+        transform 0.2s,
+        box-shadow 0.2s;
 }
 
 .product-item:hover {
     transform: translateY(-3px);
-    box-shadow: var(--shadow-md, 0 4px 12px rgba(0,0,0,0.15));
+    box-shadow: var(--shadow-md, 0 4px 12px rgba(0, 0, 0, 0.15));
 }
 
 .product-details {

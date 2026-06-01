@@ -1,20 +1,20 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import urlConfig from '../../utils/urlConfig';
 import '../login/login.css';
 
 function ForgotPassword() {
-    const [email, setEmail]         = useState('');
-    const [emailErr, setEmailErr]   = useState('');
+    const [email, setEmail] = useState('');
+    const [emailErr, setEmailErr] = useState('');
     const [serverErr, setServerErr] = useState('');
-    const [loading, setLoading]     = useState(false);
-    const [sent, setSent]           = useState(false);
-    const [userId, setUserId]       = useState('');
+    const [loading, setLoading] = useState(false);
+    const [sent, setSent] = useState(false);
+    const [userId, setUserId] = useState('');
     const navigate = useNavigate();
 
     const validate = () => {
-        if (!email.trim())           return 'Email is required';
+        if (!email.trim()) return 'Email is required';
         if (!/\S+@\S+\.\S+/.test(email)) return 'Enter a valid email';
         return '';
     };
@@ -22,7 +22,10 @@ function ForgotPassword() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         const err = validate();
-        if (err) { setEmailErr(err); return; }
+        if (err) {
+            setEmailErr(err);
+            return;
+        }
         setEmailErr('');
         setServerErr('');
         setLoading(true);
@@ -38,7 +41,12 @@ function ForgotPassword() {
         }
     };
 
-    if (loading) return <div className="auth-loading"><p>Sending OTP...</p></div>;
+    if (loading)
+        return (
+            <div className="auth-loading">
+                <p>Sending OTP...</p>
+            </div>
+        );
 
     if (sent) {
         return (
@@ -47,8 +55,12 @@ function ForgotPassword() {
                     <div className="innerContainer">
                         <p>Check Your Email</p>
                         <div className="otp-sent-msg">
-                            <p>We sent a 6-digit OTP to <strong>{email}</strong>.</p>
-                            <p>It expires in <strong>5 minutes</strong>.</p>
+                            <p>
+                                We sent a 6-digit OTP to <strong>{email}</strong>.
+                            </p>
+                            <p>
+                                It expires in <strong>5 minutes</strong>.
+                            </p>
                         </div>
                         <button
                             className="auth-action-btn"
@@ -57,7 +69,9 @@ function ForgotPassword() {
                             Enter OTP &amp; Reset Password
                         </button>
                         <br />
-                        <Link to="/login" className="link">Back to Sign In</Link>
+                        <Link to="/login" className="link">
+                            Back to Sign In
+                        </Link>
                     </div>
                 </div>
             </div>
@@ -71,7 +85,11 @@ function ForgotPassword() {
                     <p>Forgot Password</p>
                     <p className="auth-subtitle">Enter your registered email to receive an OTP.</p>
 
-                    {serverErr && <div className="errContainer" role="alert">{serverErr}</div>}
+                    {serverErr && (
+                        <div className="errContainer" role="alert">
+                            {serverErr}
+                        </div>
+                    )}
 
                     <form onSubmit={handleSubmit} noValidate>
                         <label htmlFor="email">Email</label>
@@ -81,15 +99,24 @@ function ForgotPassword() {
                             name="email"
                             placeholder="Your email.."
                             value={email}
-                            onChange={e => { setEmail(e.target.value); setEmailErr(''); }}
+                            onChange={(e) => {
+                                setEmail(e.target.value);
+                                setEmailErr('');
+                            }}
                             aria-describedby="email-error"
                         />
-                        {emailErr && <span className="field-error" id="email-error" role="alert">{emailErr}</span>}
+                        {emailErr && (
+                            <span className="field-error" id="email-error" role="alert">
+                                {emailErr}
+                            </span>
+                        )}
 
                         <input type="submit" value="Send OTP" />
                     </form>
                     <br />
-                    <Link to="/login" className="link">Back to Sign In</Link>
+                    <Link to="/login" className="link">
+                        Back to Sign In
+                    </Link>
                 </div>
             </div>
         </div>

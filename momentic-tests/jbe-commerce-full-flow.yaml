@@ -1,0 +1,240 @@
+fileType: momentic/test/v2
+id: jbe-commerce-full-flow
+name: JBE Commerce — Full E2E Flow
+description: >
+  Covers product browsing, signup, login, forgot password, add to cart,
+  and checkout on https://jbe-commerceapp.netlify.app
+
+# ─────────────────────────────────────────────────────────────────────────────
+# STEP 1 — Home page loads with products and nav categories
+# ─────────────────────────────────────────────────────────────────────────────
+steps:
+  - navigate:
+      url: https://jbe-commerceapp.netlify.app/
+      waitFor: networkIdle
+
+  - check:
+      goal: >
+        The page shows a navigation bar with at least one category link
+        (e.g. Electronics, Jewelery, Men's Clothing, Women's Clothing),
+        a Login button in the top-right, and a cart icon.
+
+  - check:
+      goal: >
+        At least one product card is visible on the page, showing a product
+        image, title, price starting with "Rs.", and an "Add to Cart" button.
+
+# ─────────────────────────────────────────────────────────────────────────────
+# STEP 2 — Category filtering works
+# ─────────────────────────────────────────────────────────────────────────────
+  - act:
+      goal: Click the "Electronics" link in the navigation bar.
+      postcondition: The URL contains "/products/electronics" and only electronics products are shown.
+
+  - check:
+      goal: Product cards are visible and the page does not show a blank or error state.
+
+  - navigate:
+      url: https://jbe-commerceapp.netlify.app/
+      waitFor: networkIdle
+
+# ─────────────────────────────────────────────────────────────────────────────
+# STEP 3 — Signup with a new unique user
+# ─────────────────────────────────────────────────────────────────────────────
+  - act:
+      goal: Click the Login button in the navbar.
+      postcondition: The login page is visible with Email and Password fields.
+
+  - act:
+      goal: Click the "Create a new account?" link on the login page.
+      postcondition: The signup page is visible with Name, Email, Password, and Confirm Password fields.
+
+  - act:
+      goal: >
+        Fill in the signup form with:
+          Name: Test User Momentic
+          Email: momentic_test_{{timestamp}}@yopmail.com
+          Password: TestPass123
+          Confirm Password: TestPass123
+        Then click Sign Up.
+      postcondition: >
+        The page redirects to the login page OR shows a success message
+        about the account being created.
+
+# ─────────────────────────────────────────────────────────────────────────────
+# STEP 4 — Login with the new account
+# ─────────────────────────────────────────────────────────────────────────────
+  - act:
+      goal: >
+        On the login page, fill in:
+          Email: momentic_test_{{timestamp}}@yopmail.com
+          Password: TestPass123
+        Then click Login.
+      postcondition: >
+        The user is logged in — the navbar shows "Hi, Test" or a Logout button
+        instead of the Login button.
+
+  - check:
+      goal: >
+        The Logout button is visible in the navigation bar.
+        The Login button is NOT visible.
+
+# ─────────────────────────────────────────────────────────────────────────────
+# STEP 5 — Signup validation (field errors shown correctly)
+# ─────────────────────────────────────────────────────────────────────────────
+  - navigate:
+      url: https://jbe-commerceapp.netlify.app/signup
+      waitFor: networkIdle
+
+  - act:
+      goal: Click the Sign Up submit button without filling in any fields.
+      postcondition: An error message "Name is required" or similar validation message is visible.
+
+  - check:
+      goal: >
+        Validation error messages are shown for required fields.
+        No page crash or blank screen is visible.
+
+# ─────────────────────────────────────────────────────────────────────────────
+# STEP 6 — Forgot Password flow
+# ─────────────────────────────────────────────────────────────────────────────
+  - navigate:
+      url: https://jbe-commerceapp.netlify.app/login
+      waitFor: networkIdle
+
+  - act:
+      goal: Click the "Forgot password?" link on the login page.
+      postcondition: The Forgot Password page is visible with an email input field.
+
+  - check:
+      goal: >
+        The page shows a "Forgot Password" heading, an email input,
+        a "Send OTP" button, and a "Back to Sign In" link.
+
+  - act:
+      goal: >
+        Enter a non-existent email address like "notregistered@nonexistent.com"
+        and click Send OTP.
+      postcondition: An error message is shown saying the user was not found.
+
+  - check:
+      goal: The error message is visible and the form is still on screen (not crashed).
+
+# ─────────────────────────────────────────────────────────────────────────────
+# STEP 7 — Reset Password page renders correctly
+# ─────────────────────────────────────────────────────────────────────────────
+  - navigate:
+      url: https://jbe-commerceapp.netlify.app/reset-password/000000000000000000000000
+      waitFor: networkIdle
+
+  - check:
+      goal: >
+        The Reset Password page shows:
+        - A "Reset Password" heading
+        - An OTP input field
+        - A New Password input
+        - A Confirm Password input
+        - A "Reset Password" button
+        - A "Request a new OTP" link
+
+  - act:
+      goal: Click the Reset Password button without filling in any fields.
+      postcondition: Validation errors appear for OTP and password fields.
+
+# ─────────────────────────────────────────────────────────────────────────────
+# STEP 8 — Cart: unauthenticated access redirects to login
+# ─────────────────────────────────────────────────────────────────────────────
+  - navigate:
+      url: https://jbe-commerceapp.netlify.app/
+      waitFor: networkIdle
+
+  - act:
+      goal: >
+        Log out if a Logout button is visible (click it).
+        Then navigate directly to https://jbe-commerceapp.netlify.app/cart.
+      postcondition: >
+        The page redirects to /login OR shows "Please log in to view your cart".
+
+  - check:
+      goal: >
+        The user is NOT on the cart checkout page without being logged in.
+        Either the login form OR a "please log in" message is visible.
+
+# ─────────────────────────────────────────────────────────────────────────────
+# STEP 9 — Add to cart and view cart (authenticated)
+# ─────────────────────────────────────────────────────────────────────────────
+  - navigate:
+      url: https://jbe-commerceapp.netlify.app/login
+      waitFor: networkIdle
+
+  - act:
+      goal: >
+        Log in with:
+          Email: momentic_test_{{timestamp}}@yopmail.com
+          Password: TestPass123
+        Then click Login.
+      postcondition: The Logout button is visible in the navbar.
+
+  - navigate:
+      url: https://jbe-commerceapp.netlify.app/
+      waitFor: networkIdle
+
+  - act:
+      goal: >
+        Find any visible product card and click its "Add to Cart" button.
+      postcondition: >
+        The cart badge on the cart icon shows a number greater than 0,
+        OR the button changes to show quantity controls (+/-).
+
+  - check:
+      goal: The cart icon badge shows at least 1 item.
+
+  - act:
+      goal: Click the cart icon to go to the cart page.
+      postcondition: The cart page is visible showing cart items, a Net Total, and a Pay Now button.
+
+  - check:
+      goal: >
+        The cart page shows:
+        - At least one product row with image, title, price (Rs.), and quantity
+        - A "Net Total: Rs." summary
+        - A "Pay Now" button that is enabled (not disabled/greyed out)
+        - No error messages
+
+# ─────────────────────────────────────────────────────────────────────────────
+# STEP 10 — Custom error pages
+# ─────────────────────────────────────────────────────────────────────────────
+  - navigate:
+      url: https://jbe-commerceapp.netlify.app/this-page-does-not-exist
+      waitFor: networkIdle
+
+  - check:
+      goal: >
+        A 404 "Page Not Found" page is shown with a "Go Home" link.
+        The page does not show a blank white screen or browser default error.
+
+  - act:
+      goal: Click the "Go Home" link.
+      postcondition: The home page with product listings is shown.
+
+# ─────────────────────────────────────────────────────────────────────────────
+# STEP 11 — Logout clears cart badge
+# ─────────────────────────────────────────────────────────────────────────────
+  - act:
+      goal: Click the Logout button in the navbar.
+      postcondition: The Login button appears in the navbar. The Logout button is gone.
+
+  - check:
+      goal: >
+        After logout:
+        - The Login button is visible
+        - The cart badge shows no count (0 or hidden)
+        - No user greeting like "Hi," is visible
+
+# ─────────────────────────────────────────────────────────────────────────────
+# STEP 12 — Final smoke check
+# ─────────────────────────────────────────────────────────────────────────────
+  - check:
+      goal: >
+        The page has no visible JavaScript errors, crash messages, blank sections,
+        or broken layout. Product categories in the navbar are still visible.

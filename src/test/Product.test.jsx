@@ -13,7 +13,9 @@ const mockProduct = {
 
 const renderProduct = (product = mockProduct) =>
     render(
-        <CartContext.Provider value={{ cart: {}, addToCart: vi.fn(), removeFromCart: vi.fn(), totalQuantity: 0 }}>
+        <CartContext.Provider
+            value={{ cart: {}, addToCart: vi.fn(), removeFromCart: vi.fn(), totalQuantity: 0 }}
+        >
             <Product product={product} />
         </CartContext.Provider>
     );

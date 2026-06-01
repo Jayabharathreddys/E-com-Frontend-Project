@@ -6,15 +6,16 @@ import axios from 'axios';
 
 vi.mock('axios');
 
-const renderPage = (userId = 'user123') => render(
-    <MemoryRouter initialEntries={[`/reset-password/${userId}`]}>
-        <Routes>
-            <Route path="/reset-password/:userId" element={<ResetPassword />} />
-            <Route path="/login" element={<div>Login Page</div>} />
-            <Route path="/forgot-password" element={<div>Forgot Page</div>} />
-        </Routes>
-    </MemoryRouter>
-);
+const renderPage = (userId = 'user123') =>
+    render(
+        <MemoryRouter initialEntries={[`/reset-password/${userId}`]}>
+            <Routes>
+                <Route path="/reset-password/:userId" element={<ResetPassword />} />
+                <Route path="/login" element={<div>Login Page</div>} />
+                <Route path="/forgot-password" element={<div>Forgot Page</div>} />
+            </Routes>
+        </MemoryRouter>
+    );
 
 describe('ResetPassword — validation', () => {
     it('shows error when OTP is empty', async () => {
@@ -25,32 +26,50 @@ describe('ResetPassword — validation', () => {
 
     it('shows error when new password is empty', async () => {
         renderPage();
-        fireEvent.change(screen.getByPlaceholderText('Enter 6-digit OTP..'), { target: { value: '123456' } });
+        fireEvent.change(screen.getByPlaceholderText('Enter 6-digit OTP..'), {
+            target: { value: '123456' },
+        });
         fireEvent.click(screen.getByDisplayValue('Reset Password'));
         expect(await screen.findByText('New password is required')).toBeInTheDocument();
     });
 
     it('shows error when password is too short', async () => {
         renderPage();
-        fireEvent.change(screen.getByPlaceholderText('Enter 6-digit OTP..'), { target: { value: '123456' } });
-        fireEvent.change(screen.getByPlaceholderText('Min 6 characters..'), { target: { value: '123' } });
+        fireEvent.change(screen.getByPlaceholderText('Enter 6-digit OTP..'), {
+            target: { value: '123456' },
+        });
+        fireEvent.change(screen.getByPlaceholderText('Min 6 characters..'), {
+            target: { value: '123' },
+        });
         fireEvent.click(screen.getByDisplayValue('Reset Password'));
-        expect(await screen.findByText('Password must be at least 6 characters')).toBeInTheDocument();
+        expect(
+            await screen.findByText('Password must be at least 6 characters')
+        ).toBeInTheDocument();
     });
 
     it('shows error when confirm password is empty', async () => {
         renderPage();
-        fireEvent.change(screen.getByPlaceholderText('Enter 6-digit OTP..'), { target: { value: '123456' } });
-        fireEvent.change(screen.getByPlaceholderText('Min 6 characters..'), { target: { value: 'newpass1' } });
+        fireEvent.change(screen.getByPlaceholderText('Enter 6-digit OTP..'), {
+            target: { value: '123456' },
+        });
+        fireEvent.change(screen.getByPlaceholderText('Min 6 characters..'), {
+            target: { value: 'newpass1' },
+        });
         fireEvent.click(screen.getByDisplayValue('Reset Password'));
         expect(await screen.findByText('Please confirm your password')).toBeInTheDocument();
     });
 
     it('shows error when passwords do not match', async () => {
         renderPage();
-        fireEvent.change(screen.getByPlaceholderText('Enter 6-digit OTP..'), { target: { value: '123456' } });
-        fireEvent.change(screen.getByPlaceholderText('Min 6 characters..'), { target: { value: 'newpass1' } });
-        fireEvent.change(screen.getByPlaceholderText('Repeat new password..'), { target: { value: 'newpass2' } });
+        fireEvent.change(screen.getByPlaceholderText('Enter 6-digit OTP..'), {
+            target: { value: '123456' },
+        });
+        fireEvent.change(screen.getByPlaceholderText('Min 6 characters..'), {
+            target: { value: 'newpass1' },
+        });
+        fireEvent.change(screen.getByPlaceholderText('Repeat new password..'), {
+            target: { value: 'newpass2' },
+        });
         fireEvent.click(screen.getByDisplayValue('Reset Password'));
         expect(await screen.findByText('Passwords do not match')).toBeInTheDocument();
     });
@@ -59,7 +78,9 @@ describe('ResetPassword — validation', () => {
         renderPage();
         fireEvent.click(screen.getByDisplayValue('Reset Password'));
         expect(await screen.findByText('OTP is required')).toBeInTheDocument();
-        fireEvent.change(screen.getByPlaceholderText('Enter 6-digit OTP..'), { target: { value: '1' } });
+        fireEvent.change(screen.getByPlaceholderText('Enter 6-digit OTP..'), {
+            target: { value: '1' },
+        });
         expect(screen.queryByText('OTP is required')).not.toBeInTheDocument();
     });
 });
@@ -67,12 +88,18 @@ describe('ResetPassword — validation', () => {
 describe('ResetPassword — server interaction', () => {
     it('shows server error for wrong OTP', async () => {
         axios.patch.mockRejectedValueOnce({
-            response: { data: { message: 'otp is not found or wrong' } }
+            response: { data: { message: 'otp is not found or wrong' } },
         });
         renderPage();
-        fireEvent.change(screen.getByPlaceholderText('Enter 6-digit OTP..'), { target: { value: 'wrong1' } });
-        fireEvent.change(screen.getByPlaceholderText('Min 6 characters..'), { target: { value: 'newpass1' } });
-        fireEvent.change(screen.getByPlaceholderText('Repeat new password..'), { target: { value: 'newpass1' } });
+        fireEvent.change(screen.getByPlaceholderText('Enter 6-digit OTP..'), {
+            target: { value: 'wrong1' },
+        });
+        fireEvent.change(screen.getByPlaceholderText('Min 6 characters..'), {
+            target: { value: 'newpass1' },
+        });
+        fireEvent.change(screen.getByPlaceholderText('Repeat new password..'), {
+            target: { value: 'newpass1' },
+        });
         fireEvent.click(screen.getByDisplayValue('Reset Password'));
         expect(await screen.findByText('otp is not found or wrong')).toBeInTheDocument();
     });
@@ -80,19 +107,33 @@ describe('ResetPassword — server interaction', () => {
     it('shows fallback error on network failure', async () => {
         axios.patch.mockRejectedValueOnce(new Error('Network Error'));
         renderPage();
-        fireEvent.change(screen.getByPlaceholderText('Enter 6-digit OTP..'), { target: { value: '123456' } });
-        fireEvent.change(screen.getByPlaceholderText('Min 6 characters..'), { target: { value: 'newpass1' } });
-        fireEvent.change(screen.getByPlaceholderText('Repeat new password..'), { target: { value: 'newpass1' } });
+        fireEvent.change(screen.getByPlaceholderText('Enter 6-digit OTP..'), {
+            target: { value: '123456' },
+        });
+        fireEvent.change(screen.getByPlaceholderText('Min 6 characters..'), {
+            target: { value: 'newpass1' },
+        });
+        fireEvent.change(screen.getByPlaceholderText('Repeat new password..'), {
+            target: { value: 'newpass1' },
+        });
         fireEvent.click(screen.getByDisplayValue('Reset Password'));
-        expect(await screen.findByText('Reset failed. Please check your OTP and try again.')).toBeInTheDocument();
+        expect(
+            await screen.findByText('Reset failed. Please check your OTP and try again.')
+        ).toBeInTheDocument();
     });
 
     it('redirects to login on success', async () => {
         axios.patch.mockResolvedValueOnce({ data: { status: 'success' } });
         renderPage();
-        fireEvent.change(screen.getByPlaceholderText('Enter 6-digit OTP..'), { target: { value: '123456' } });
-        fireEvent.change(screen.getByPlaceholderText('Min 6 characters..'), { target: { value: 'newpass1' } });
-        fireEvent.change(screen.getByPlaceholderText('Repeat new password..'), { target: { value: 'newpass1' } });
+        fireEvent.change(screen.getByPlaceholderText('Enter 6-digit OTP..'), {
+            target: { value: '123456' },
+        });
+        fireEvent.change(screen.getByPlaceholderText('Min 6 characters..'), {
+            target: { value: 'newpass1' },
+        });
+        fireEvent.change(screen.getByPlaceholderText('Repeat new password..'), {
+            target: { value: 'newpass1' },
+        });
         fireEvent.click(screen.getByDisplayValue('Reset Password'));
         expect(await screen.findByText('Login Page')).toBeInTheDocument();
     });

@@ -9,13 +9,17 @@ import './productListing.css';
 
 const ProductListing = () => {
     const { categoryName } = useParams();
-    const { data: productsResponse, error, isLoading } = useFetchData(urlConfig.ALL_PRODUCT_URL, { message: [] });
+    const {
+        data: productsResponse,
+        error,
+        isLoading,
+    } = useFetchData(urlConfig.ALL_PRODUCT_URL, { message: [] });
 
     const products = (productsResponse?.message || [])
-        .filter(p => !categoryName || (p.categories || []).includes(categoryName))
-        .map(p => ({
+        .filter((p) => !categoryName || (p.categories || []).includes(categoryName))
+        .map((p) => ({
             ...p,
-            id:    p._id,
+            id: p._id,
             title: p.name,
             image: p.productImages?.[0] || 'https://via.placeholder.com/150',
             price: parseFloat(p.price) || 0,
@@ -28,9 +32,9 @@ const ProductListing = () => {
     useEffect(() => {
         setCurrentPage(1);
     }, [categoryName]);
-    const totalPages     = Math.ceil(products.length / itemsPerPage);
-    const indexOfLast    = currentPage * itemsPerPage;
-    const indexOfFirst   = indexOfLast - itemsPerPage;
+    const totalPages = Math.ceil(products.length / itemsPerPage);
+    const indexOfLast = currentPage * itemsPerPage;
+    const indexOfFirst = indexOfLast - itemsPerPage;
     const currentProducts = products.slice(indexOfFirst, indexOfLast);
 
     const paginate = (page) => {
@@ -53,12 +57,12 @@ const ProductListing = () => {
                 <Loader />
             ) : products.length === 0 ? (
                 <div className="product-empty">
-                    <p>No products found{categoryName ? ` in "${categoryName}"` : ''}.  </p>
+                    <p>No products found{categoryName ? ` in "${categoryName}"` : ''}. </p>
                 </div>
             ) : (
                 <>
                     <div className="product-list">
-                        {currentProducts.map(product => (
+                        {currentProducts.map((product) => (
                             <Product key={product.id} product={product} />
                         ))}
                     </div>

@@ -13,29 +13,29 @@ import ResetPassword from '../pages/resetPassword/ResetPassword';
 import urlConfig from '../utils/urlConfig';
 
 const AppRoutes = () => {
-  const { data: categories, isLoading } = useFetchData(urlConfig.CATEGORIES_URL, []);
+    const { data: categories, isLoading } = useFetchData(urlConfig.CATEGORIES_URL, []);
 
-  return (
-    <Router>
-      <Header categories={categories?.data || categories || []} isLoading={isLoading} />
-      <Routes>
-        <Route path='/'                       element={<ProductListing />} />
-        <Route path='/products/:categoryName' element={<ProductListing />} />
-        <Route path='/signup'                 element={<Signup />} />
-        <Route path='/login'                  element={<Login />} />
-        <Route path='/unauthorized'           element={<Unauthorized />} />
-        <Route path='/forgot-password'        element={<ForgotPassword />} />
-        <Route path='/reset-password/:userId' element={<ResetPassword />} />
-        <Route path='/signin'                 element={<Navigate to="/login" replace />} />
+    return (
+        <Router>
+            <Header categories={categories?.data || categories || []} isLoading={isLoading} />
+            <Routes>
+                <Route path="/" element={<ProductListing />} />
+                <Route path="/products/:categoryName" element={<ProductListing />} />
+                <Route path="/signup" element={<Signup />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/unauthorized" element={<Unauthorized />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/reset-password/:userId" element={<ResetPassword />} />
+                <Route path="/signin" element={<Navigate to="/login" replace />} />
 
-        <Route element={<RequireAuth />}>
-          <Route path='/cart' element={<CartItems />} />
-        </Route>
+                <Route element={<RequireAuth />}>
+                    <Route path="/cart" element={<CartItems />} />
+                </Route>
 
-        <Route path='*' element={<NotFound />} />
-      </Routes>
-    </Router>
-  );
+                <Route path="*" element={<NotFound />} />
+            </Routes>
+        </Router>
+    );
 };
 
 export default AppRoutes;

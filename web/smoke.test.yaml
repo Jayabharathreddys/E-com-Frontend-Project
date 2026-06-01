@@ -1,0 +1,11 @@
+fileType: momentic/test/v2
+id: jbe-smoke-home-products
+version: 1.0.0
+description: Home page loads — navbar and login button visible
+defaultEnv: jbe
+disabled: false
+viewport: 1920, 1080
+browserType: Chromium
+steps:
+  - assert: A navigation bar is visible at the top of the page
+  - assert: A Login button or link is visible on the right side of the navbar

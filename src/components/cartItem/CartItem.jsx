@@ -1,8 +1,8 @@
 import './cartItem.css';
 
 const CartItem = ({ cartData }) => {
-    const { id, title, quantity, image } = cartData;
-    const price      = parseFloat(cartData.price) || 0;   // guard: may arrive as string
+    const { title, quantity, image } = cartData;
+    const price = parseFloat(cartData.price) || 0; // guard: may arrive as string
     const totalPrice = price * quantity;
 
     return (
@@ -12,7 +12,9 @@ const CartItem = ({ cartData }) => {
                     <img
                         src={image}
                         alt={title}
-                        onError={e => { e.target.src = 'https://via.placeholder.com/80?text=No+Image'; }}
+                        onError={(e) => {
+                            e.target.src = 'https://via.placeholder.com/80?text=No+Image';
+                        }}
                     />
                 </div>
                 <div className="cart-item-info">

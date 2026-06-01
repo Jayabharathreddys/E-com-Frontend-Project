@@ -3,15 +3,16 @@ import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import NotFound from '../pages/notFound/NotFound';
 import Unauthorized from '../pages/unauthorized/Unauthorized';
 
-const renderPage = (Component) => render(
-    <MemoryRouter initialEntries={['/error']}>
-        <Routes>
-            <Route path="/error" element={<Component />} />
-            <Route path="/login" element={<div>Login Page</div>} />
-            <Route path="/" element={<div>Home Page</div>} />
-        </Routes>
-    </MemoryRouter>
-);
+const renderPage = (Component) =>
+    render(
+        <MemoryRouter initialEntries={['/error']}>
+            <Routes>
+                <Route path="/error" element={<Component />} />
+                <Route path="/login" element={<div>Login Page</div>} />
+                <Route path="/" element={<div>Home Page</div>} />
+            </Routes>
+        </MemoryRouter>
+    );
 
 describe('NotFound (404) page', () => {
     it('shows 404 code', () => {
