@@ -5,7 +5,7 @@ node_modules
 dist
 dist-ssr
 
-# Local env files
+# Local env files — never commit real secrets
 .env
 .env.*
 !.env.example

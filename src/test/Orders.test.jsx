@@ -150,4 +150,34 @@ describe('Orders page', () => {
         const allTab = screen.getByRole('tab', { name: /all orders/i });
         expect(allTab).toHaveAttribute('aria-selected', 'true');
     });
+
+    it('search input filters orders by product name', async () => {
+        axios.get.mockResolvedValueOnce({ data: { status: 'success', data: mockOrders } });
+        renderOrders();
+        await waitFor(() => screen.getByText('Test Sneakers'));
+
+        fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'Sneakers' } });
+
+        expect(screen.getByText('Test Sneakers')).toBeInTheDocument();
+        expect(screen.queryByText('Test Backpack')).not.toBeInTheDocument();
+    });
+
+    it('search shows "No orders matching" message when no results', async () => {
+        axios.get.mockResolvedValueOnce({ data: { status: 'success', data: mockOrders } });
+        renderOrders();
+        await waitFor(() => screen.getByText('Test Sneakers'));
+
+        fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'zzznomatch' } });
+
+        expect(screen.getByText(/No orders matching/i)).toBeInTheDocument();
+    });
+
+    it('View Details link has correct href', async () => {
+        axios.get.mockResolvedValueOnce({ data: { status: 'success', data: mockOrders } });
+        renderOrders();
+        await waitFor(() => screen.getByText('Test Sneakers'));
+
+        const viewLinks = screen.getAllByText(/View Details/i);
+        expect(viewLinks[0].closest('a')).toHaveAttribute('href', '/orders/ord1');
+    });
 });
