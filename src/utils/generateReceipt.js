@@ -18,6 +18,7 @@ export function generateReceipt(data, jsPDFClass) {
     const doc = new jsPDFClass({ orientation: 'portrait', unit: 'mm', format: 'a4' });
 
     const pageW = doc.internal.pageSize.getWidth();
+    const pageH = doc.internal.pageSize.getHeight();
     const margin = 20;
     const col1 = margin;
     const col2 = 100;
@@ -71,27 +72,42 @@ export function generateReceipt(data, jsPDFClass) {
     doc.text(customerEmail || '—', col1 + 18, y + 8);
     y += 22;
 
-    // ── Items table header ────────────────────────────────────────────────────
-    doc.setFillColor(61, 90, 153);
-    doc.rect(margin, y - 4, pageW - margin * 2, 10, 'F');
+    // ── Items table header (extracted so it can be re-drawn on new pages) ────
+    const drawTableHeader = (yPos) => {
+        doc.setFillColor(61, 90, 153);
+        doc.rect(margin, yPos - 4, pageW - margin * 2, 10, 'F');
+        doc.setTextColor(255, 255, 255);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(9);
+        doc.text('Item', col1, yPos + 2);
+        doc.text('Qty', col2, yPos + 2);
+        doc.text('Unit Price', col3, yPos + 2);
+        doc.text('Total', col4, yPos + 2);
+        return yPos + 12;
+    };
 
-    doc.setTextColor(255, 255, 255);
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(9);
-    doc.text('Item', col1, y + 2);
-    doc.text('Qty', col2, y + 2);
-    doc.text('Unit Price', col3, y + 2);
-    doc.text('Total', col4, y + 2);
-    y += 12;
+    y = drawTableHeader(y);
 
-    // ── Items rows ────────────────────────────────────────────────────────────
+    // ── Items rows — with page overflow guard (Fix CR#3) ─────────────────────
     doc.setTextColor(40, 40, 40);
     doc.setFont('helvetica', 'normal');
+
+    // Reserve space for the grand-total block (~24 mm) + footer (~14 mm)
+    const rowBottomLimit = pageH - margin - 38;
 
     items.forEach((item, idx) => {
         const unitPrice = parseFloat(item.price) || 0;
         const qty = item.quantity || 1;
         const lineTotal = unitPrice * qty;
+
+        // If the next row would overflow, add a new page and re-draw the header
+        if (y > rowBottomLimit) {
+            doc.addPage();
+            y = margin + 10;
+            y = drawTableHeader(y);
+            doc.setTextColor(40, 40, 40);
+            doc.setFont('helvetica', 'normal');
+        }
 
         if (idx % 2 === 0) {
             doc.setFillColor(248, 249, 252);

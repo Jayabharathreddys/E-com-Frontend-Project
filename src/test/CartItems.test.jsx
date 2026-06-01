@@ -193,7 +193,15 @@ describe('CartItems — authenticated with items', () => {
 
 // ── PDF Receipt download ────────────────────────────────────────────────────
 describe('CartItems — PDF receipt after payment', () => {
-    beforeEach(() => vi.clearAllMocks());
+    beforeEach(() => {
+        vi.clearAllMocks();
+        // Fix CR nitpick: make this suite self-contained — stub querySelector so
+        // loadRazorpayScript short-circuits even when run in isolation / sharded.
+        Object.defineProperty(document, 'querySelector', {
+            writable: true,
+            value: () => ({ src: 'razorpay' }),
+        });
+    });
 
     const triggerSuccessfulPayment = async () => {
         // Booking API response

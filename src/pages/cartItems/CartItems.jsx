@@ -32,6 +32,7 @@ function CartItems() {
     const [success, setSuccess] = useState(false);
     const [receiptData, setReceiptData] = useState(null);
     const [downloading, setDownloading] = useState(false);
+    const [downloadErr, setDownloadErr] = useState('');
 
     const cartItems = Object.values(cart || {});
     const totalPrice = cartItems.reduce(
@@ -52,9 +53,13 @@ function CartItems() {
     if (success) {
         const handleDownload = async () => {
             if (!receiptData) return;
+            setDownloadErr('');
             setDownloading(true);
             try {
                 await downloadReceipt(receiptData);
+            } catch {
+                // Fix CR#1: surface errors to the user instead of swallowing them
+                setDownloadErr('Could not generate the receipt. Please try again.');
             } finally {
                 setDownloading(false);
             }
@@ -73,6 +78,11 @@ function CartItems() {
                     >
                         {downloading ? 'Generating PDF…' : '⬇ Download Receipt (PDF)'}
                     </button>
+                )}
+                {downloadErr && (
+                    <p className="cart-err" role="alert">
+                        {downloadErr}
+                    </p>
                 )}
             </div>
         );
@@ -143,7 +153,8 @@ function CartItems() {
                                 orderId: paymentResponse.razorpay_order_id,
                                 paymentId: paymentResponse.razorpay_payment_id,
                                 customerName: user?.user?.name || user?.name || 'Customer',
-                                customerEmail: user?.email || '',
+                                // Fix CR#2: mirror the same nested fallback used by customerName
+                                customerEmail: user?.user?.email || user?.email || '',
                                 items: itemsSnapshot,
                                 totalAmount: combinedAmount / 100, // paise → rupees
                                 date: new Date().toISOString(),

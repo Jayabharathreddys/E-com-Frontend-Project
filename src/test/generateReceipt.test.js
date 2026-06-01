@@ -14,8 +14,11 @@ const mockSetFillColor = vi.fn();
 const mockSetDrawColor = vi.fn();
 const mockSplitTextToSize = vi.fn((text) => [text]); // return text unchanged
 
+const mockAddPage = vi.fn();
+
 const MockJsPDF = vi.fn(() => ({
-    internal: { pageSize: { getWidth: () => 210 } },
+    internal: { pageSize: { getWidth: () => 210, getHeight: () => 297 } },
+    addPage: mockAddPage,
     save: mockSave,
     text: mockText,
     rect: mockRect,
@@ -180,5 +183,22 @@ describe('generateReceipt', () => {
         generateReceipt(baseData, MockJsPDF);
         // generateReceipt returns the doc; downloadReceipt calls .save()
         expect(mockSave).not.toHaveBeenCalled();
+    });
+
+    // Fix CR#3: pagination — many items must not overflow A4
+    it('calls addPage() when items would overflow the A4 page height', () => {
+        // 40 items × 9mm each = 360mm — far exceeds A4 (297mm)
+        const manyItems = Array.from({ length: 40 }, (_, i) => ({
+            title: `Product ${i}`,
+            price: '10.00',
+            quantity: 1,
+        }));
+        generateReceipt({ ...baseData, items: manyItems }, MockJsPDF);
+        expect(mockAddPage).toHaveBeenCalled();
+    });
+
+    it('does NOT call addPage() for a small number of items', () => {
+        generateReceipt(baseData, MockJsPDF); // only 2 items
+        expect(mockAddPage).not.toHaveBeenCalled();
     });
 });
