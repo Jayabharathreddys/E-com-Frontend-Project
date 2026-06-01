@@ -148,6 +148,7 @@ function CartItems() {
                         axios.delete(`${urlConfig.ORDER_URL}/${b.bookingId}`, authOpts)
                     )
                 );
+                const rollbackFailed = cancelResults.some((r) => r.status === 'rejected');
                 cancelResults.forEach((result, i) => {
                     if (result.status === 'rejected') {
                         const booking = bookingsToCancel[i];
@@ -158,6 +159,11 @@ function CartItems() {
                         });
                     }
                 });
+                if (rollbackFailed) {
+                    throw new Error(
+                        'Some items were booked, but cleanup did not complete. Please check your orders before retrying.'
+                    );
+                }
                 const firstErr = failed[0].reason;
                 throw new Error(
                     firstErr?.response?.data?.message ||
