@@ -22,7 +22,14 @@ const useFetchData = (url, initialData) => {
             setIsLoading(true);
             try {
                 const BASE_URL = import.meta.env.VITE_BASE_URL || 'http://localhost:3001';
-                const isOwnBackend = url.startsWith(BASE_URL);
+                // Use origin comparison so a host like "localhost:3001.attacker.com"
+                // doesn't accidentally match via a plain startsWith prefix check.
+                let isOwnBackend = false;
+                try {
+                    isOwnBackend = new URL(url).origin === new URL(BASE_URL).origin;
+                } catch {
+                    /* unparseable URL — treat as external */
+                }
                 const token = isOwnBackend ? sessionStorage.getItem('auth_token') : null;
                 const config = {
                     signal: controller.signal,

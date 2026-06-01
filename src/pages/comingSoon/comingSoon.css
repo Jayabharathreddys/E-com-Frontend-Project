@@ -1,0 +1,107 @@
+.cs-page {
+    display: grid;
+    place-items: center;
+    min-height: 70vh;
+    padding: 2rem 1.6rem;
+}
+
+.cs-card {
+    text-align: center;
+    padding: 4rem 4.8rem;
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 16px;
+    max-width: 480px;
+    width: 100%;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.cs-icon {
+    font-size: 5.6rem;
+    margin-bottom: 1.2rem;
+    line-height: 1;
+}
+
+.cs-title {
+    font-size: 2.6rem;
+    font-weight: 700;
+    color: #222;
+    margin: 0 0 0.6rem;
+}
+
+.cs-subtitle {
+    font-size: 1.5rem;
+    color: #666;
+    margin: 0 0 2.4rem;
+}
+
+.cs-teaser {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 2rem;
+    text-align: left;
+    display: inline-block;
+}
+
+.cs-teaser li {
+    font-size: 1.4rem;
+    color: #444;
+    padding: 0.4rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+.cs-check {
+    color: #3d5a99;
+    font-weight: 700;
+    font-size: 1.4rem;
+}
+
+.cs-badge {
+    display: inline-block;
+    background: #eef1fb;
+    color: #3d5a99;
+    font-size: 1.2rem;
+    font-weight: 600;
+    padding: 0.4rem 1.2rem;
+    border-radius: 20px;
+    margin-bottom: 2.4rem;
+}
+
+.cs-actions {
+    display: flex;
+    gap: 1.2rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.cs-btn {
+    padding: 0.9rem 2.4rem;
+    border-radius: 8px;
+    font-size: 1.4rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition:
+        background 0.2s,
+        border-color 0.2s;
+}
+
+.cs-btn.primary {
+    background: #3d5a99;
+    color: #fff;
+    border: 2px solid #3d5a99;
+}
+.cs-btn.primary:hover {
+    background: #2e4377;
+    border-color: #2e4377;
+}
+
+.cs-btn.secondary {
+    background: transparent;
+    color: #3d5a99;
+    border: 2px solid #3d5a99;
+}
+.cs-btn.secondary:hover {
+    background: #eef1fb;
+}
