@@ -3,6 +3,7 @@ import { MemoryRouter } from 'react-router-dom';
 import { vi } from 'vitest';
 import Orders from '../pages/orders/Orders';
 import AuthContext from '../context/auth/AuthContext';
+import CartContext from '../context/cart/CartContext';
 import axios from 'axios';
 
 vi.mock('axios');
@@ -38,12 +39,16 @@ const mockOrders = [
     },
 ];
 
+const mockCartCtx = { cart: {}, totalQuantity: 0, clearCart: vi.fn(), addToCart: vi.fn() };
+
 const renderOrders = (user = mockUser) =>
     render(
         <AuthContext.Provider value={{ user }}>
-            <MemoryRouter>
-                <Orders />
-            </MemoryRouter>
+            <CartContext.Provider value={mockCartCtx}>
+                <MemoryRouter>
+                    <Orders />
+                </MemoryRouter>
+            </CartContext.Provider>
         </AuthContext.Provider>
     );
 
@@ -58,7 +63,7 @@ describe('Orders page', () => {
     it('renders "My Orders" heading', async () => {
         axios.get.mockResolvedValueOnce({ data: { status: 'success', data: [] } });
         renderOrders();
-        expect(screen.getByText('My Orders')).toBeInTheDocument();
+        expect(screen.getByRole('heading', { name: 'My Orders' })).toBeInTheDocument();
     });
 
     it('renders all 4 status tabs', async () => {
@@ -131,8 +136,11 @@ describe('Orders page', () => {
         fireEvent.click(screen.getByRole('tab', { name: /confirmed/i }));
 
         await waitFor(() => {
-            // useFetchData calls axios.get(url) with one argument only
-            expect(axios.get).toHaveBeenCalledWith(expect.stringContaining('status=confirmed'));
+            // useFetchData calls axios.get(url, { signal }) — match url + any second arg
+            expect(axios.get).toHaveBeenCalledWith(
+                expect.stringContaining('status=confirmed'),
+                expect.objectContaining({ signal: expect.any(AbortSignal) })
+            );
         });
     });
 
