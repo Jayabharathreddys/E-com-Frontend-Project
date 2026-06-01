@@ -130,7 +130,7 @@ function OrderCard({ order }) {
                                 to={`/orders/${order._id}`}
                                 className="order-btn order-btn-secondary"
                             >
-                                ⬇ Download Invoice
+                                🧾 View Invoice
                             </Link>
                         )}
                         {isFailed && (
@@ -187,7 +187,8 @@ export default function Orders() {
         : allOrders;
 
     const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
-    const orders = filtered.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
+    const safePage = Math.min(page, totalPages);
+    const orders = filtered.slice((safePage - 1) * ITEMS_PER_PAGE, safePage * ITEMS_PER_PAGE);
 
     if (!user) {
         return (
