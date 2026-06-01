@@ -8,6 +8,13 @@ import CartContext from '../context/cart/CartContext';
 
 vi.mock('axios');
 
+// Mock generateReceipt module — downloadReceipt dynamically imports jsPDF
+// which isn't available in jsdom; mock the whole utility.
+vi.mock('../utils/generateReceipt', () => ({
+    downloadReceipt: vi.fn().mockResolvedValue(undefined),
+    generateReceipt: vi.fn(),
+}));
+
 // Mock Razorpay globally
 const mockRazorpayOpen = vi.fn();
 const mockRazorpayOn = vi.fn();
@@ -181,6 +188,121 @@ describe('CartItems — authenticated with items', () => {
                 bookingIds: expect.arrayContaining(['b1', 'b2']),
             });
         });
+    });
+});
+
+// ── PDF Receipt download ────────────────────────────────────────────────────
+describe('CartItems — PDF receipt after payment', () => {
+    beforeEach(() => {
+        vi.clearAllMocks();
+        // Fix CR nitpick: make this suite self-contained — stub querySelector so
+        // loadRazorpayScript short-circuits even when run in isolation / sharded.
+        Object.defineProperty(document, 'querySelector', {
+            writable: true,
+            value: () => ({ src: 'razorpay' }),
+        });
+    });
+
+    const triggerSuccessfulPayment = async () => {
+        // Booking API response
+        axios.post.mockResolvedValueOnce({
+            data: { id: 'order_123', currency: 'INR', amount: 10000, bookingId: 'b1' },
+        });
+
+        // Simulate Razorpay calling handler then verify succeeding
+        global.Razorpay = vi.fn(({ handler }) => ({
+            open: () =>
+                handler({
+                    razorpay_order_id: 'order_123',
+                    razorpay_payment_id: 'pay_456',
+                    razorpay_signature: 'sig_abc',
+                }),
+            on: vi.fn(),
+        }));
+
+        // Verify API response
+        axios.post.mockResolvedValueOnce({ data: { success: true } });
+
+        const { downloadReceipt } = await import('../utils/generateReceipt');
+        downloadReceipt.mockResolvedValue(undefined);
+
+        render(
+            <AuthContext.Provider value={{ user: { name: 'Alice', email: 'alice@test.com' } }}>
+                <CartContext.Provider
+                    value={{
+                        cart: singleItemCart,
+                        addToCart: mockAddToCart,
+                        removeFromCart: mockRemoveFromCart,
+                        clearCart: mockClearCart,
+                    }}
+                >
+                    <MemoryRouter>
+                        <CartItems />
+                    </MemoryRouter>
+                </CartContext.Provider>
+            </AuthContext.Provider>
+        );
+
+        fireEvent.click(screen.getByText('Pay Now'));
+
+        // Wait for success screen
+        await waitFor(() => {
+            expect(screen.getByText(/Payment Successful/i)).toBeInTheDocument();
+        });
+    };
+
+    it('shows Download Receipt button after successful payment', async () => {
+        await triggerSuccessfulPayment();
+        expect(
+            screen.getByRole('button', { name: /download payment receipt/i })
+        ).toBeInTheDocument();
+    });
+
+    it('Download Receipt button has correct aria-label', async () => {
+        await triggerSuccessfulPayment();
+        expect(screen.getByLabelText(/download payment receipt as pdf/i)).toBeInTheDocument();
+    });
+
+    it('calls downloadReceipt with correct data shape when button clicked', async () => {
+        await triggerSuccessfulPayment();
+        const { downloadReceipt } = await import('../utils/generateReceipt');
+
+        fireEvent.click(screen.getByRole('button', { name: /download payment receipt/i }));
+
+        await waitFor(() => {
+            expect(downloadReceipt).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    orderId: 'order_123',
+                    paymentId: 'pay_456',
+                    customerName: expect.any(String),
+                    customerEmail: expect.any(String),
+                    items: expect.arrayContaining([
+                        expect.objectContaining({ title: 'Test Item' }),
+                    ]),
+                    totalAmount: expect.any(Number),
+                    date: expect.any(String),
+                })
+            );
+        });
+    });
+
+    it('shows "Generating PDF…" while download is in progress', async () => {
+        await triggerSuccessfulPayment();
+        const { downloadReceipt } = await import('../utils/generateReceipt');
+
+        // Make download hang
+        let resolveDl;
+        downloadReceipt.mockReturnValueOnce(
+            new Promise((r) => {
+                resolveDl = r;
+            })
+        );
+
+        fireEvent.click(screen.getByRole('button', { name: /download payment receipt/i }));
+
+        expect(await screen.findByText(/generating pdf/i)).toBeInTheDocument();
+
+        resolveDl();
     });
 });
 

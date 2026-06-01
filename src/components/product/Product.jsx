@@ -23,7 +23,7 @@ const Product = ({ product }) => (
             src={product.image}
             alt={product.title}
             onError={(e) => {
-                e.target.src = 'https://via.placeholder.com/150?text=No+Image';
+                e.target.src = 'https://placehold.co/150x150?text=No+Image';
             }}
         />
         <div className="product-details">

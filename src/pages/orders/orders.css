@@ -1,0 +1,227 @@
+.orders-page {
+    max-width: 860px;
+    margin: 2rem auto;
+    padding: 0 1.5rem 6rem;
+    min-height: 60vh;
+}
+
+.orders-page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1.2rem;
+    margin-bottom: 2rem;
+}
+
+.orders-search {
+    border: 1.5px solid #ddd;
+    border-radius: 8px;
+    padding: 0.8rem 1.4rem;
+    font-size: 1.3rem;
+    min-width: 26rem;
+    outline: none;
+    transition: border-color 0.2s;
+}
+.orders-search:focus {
+    border-color: #3d5a99;
+}
+
+.orders-heading {
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: #222;
+    margin-bottom: 2rem;
+}
+
+/* ── Tabs ─────────────────────────────────────────────────────────────────── */
+.orders-tabs {
+    display: flex;
+    gap: 0.6rem;
+    border-bottom: 2px solid #e0e0e0;
+    margin-bottom: 2.4rem;
+    flex-wrap: wrap;
+}
+
+.orders-tab {
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    padding: 0.9rem 1.6rem;
+    font-size: 1.3rem;
+    cursor: pointer;
+    color: #555;
+    font-weight: 500;
+    margin-bottom: -2px;
+    transition:
+        color 0.15s,
+        border-color 0.15s;
+}
+
+.orders-tab:hover {
+    color: #3d5a99;
+}
+
+.orders-tab.active {
+    color: #3d5a99;
+    border-bottom-color: #3d5a99;
+    font-weight: 700;
+}
+
+/* ── Order card ───────────────────────────────────────────────────────────── */
+.orders-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.6rem;
+}
+
+.order-card {
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 1.6rem;
+    background: #fff;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+
+.order-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.2rem;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+}
+
+.order-id {
+    font-size: 1.1rem;
+    color: #666;
+    font-family: monospace;
+}
+
+.order-badge {
+    font-size: 1.1rem;
+    font-weight: 600;
+    padding: 0.3rem 0.9rem;
+    border-radius: 20px;
+}
+
+.badge-confirmed {
+    background: #e6f4ea;
+    color: #2d7a3a;
+}
+.badge-pending {
+    background: #fff8e1;
+    color: #b07d00;
+}
+.badge-failed {
+    background: #fdecea;
+    color: #b71c1c;
+}
+
+.order-card-body {
+    display: flex;
+    align-items: center;
+    gap: 1.6rem;
+}
+
+.order-product-img {
+    width: 8rem;
+    height: 8rem;
+    object-fit: contain;
+    border-radius: 6px;
+    border: 1px solid #eee;
+    background: #f9f9f9;
+    flex-shrink: 0;
+}
+
+.order-product-info {
+    flex: 1;
+}
+
+.order-product-name {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: #222;
+    margin-bottom: 0.4rem;
+}
+
+.order-product-meta {
+    font-size: 1.2rem;
+    color: #666;
+}
+
+.order-amount {
+    text-align: right;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.8rem;
+}
+
+.order-view-btn {
+    font-size: 1.2rem;
+    color: #3d5a99;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+}
+.order-view-btn:hover {
+    text-decoration: underline;
+}
+
+.order-total {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #3d5a99;
+}
+
+/* ── Empty state ──────────────────────────────────────────────────────────── */
+.orders-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 6rem 2rem;
+    text-align: center;
+    gap: 1.2rem;
+}
+
+.orders-empty-icon {
+    font-size: 5rem;
+}
+
+.orders-empty h3 {
+    font-size: 1.8rem;
+    color: #333;
+    text-transform: capitalize;
+}
+
+.orders-empty p {
+    font-size: 1.3rem;
+    color: #777;
+}
+
+.orders-shop-btn {
+    display: inline-block;
+    margin-top: 0.4rem;
+    background: #3d5a99;
+    color: #fff;
+    padding: 1rem 2.4rem;
+    border-radius: 8px;
+    font-size: 1.3rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background 0.2s;
+}
+
+.orders-shop-btn:hover {
+    background: #2e4377;
+}
+
+.orders-error {
+    text-align: center;
+    color: #cc0000;
+    font-size: 1.3rem;
+    padding: 3rem;
+}

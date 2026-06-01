@@ -5,6 +5,7 @@ import CartItem from '../../components/cartItem';
 import './cartItems.css';
 import urlConfig from '../../utils/urlConfig';
 import axios from 'axios';
+import { downloadReceipt } from '../../utils/generateReceipt';
 
 const loadRazorpayScript = () =>
     new Promise((resolve) => {
@@ -16,12 +17,22 @@ const loadRazorpayScript = () =>
         document.body.appendChild(script);
     });
 
+/**
+ * Render the shopping cart interface, handle the Razorpay checkout flow, and provide a receipt download after successful payment.
+ *
+ * Displays a login prompt when no user is present, lists cart items with a net total and a "Pay Now" action when items exist, and shows a payment success view with a PDF receipt download button after a successful transaction. Initiates backend booking creation and payment verification, clears the cart on verified payment, and stores receipt data for download.
+ *
+ * @returns {JSX.Element} The cart page UI component.
+ */
 function CartItems() {
     const { cart, clearCart } = useCart();
     const { user } = useAuth();
     const [paymentErr, setPaymentErr] = useState('');
     const [processing, setProcessing] = useState(false);
     const [success, setSuccess] = useState(false);
+    const [receiptData, setReceiptData] = useState(null);
+    const [downloading, setDownloading] = useState(false);
+    const [downloadErr, setDownloadErr] = useState('');
 
     const cartItems = Object.values(cart || {});
     const totalPrice = cartItems.reduce(
@@ -40,10 +51,39 @@ function CartItems() {
     }
 
     if (success) {
+        const handleDownload = async () => {
+            if (!receiptData) return;
+            setDownloadErr('');
+            setDownloading(true);
+            try {
+                await downloadReceipt(receiptData);
+            } catch {
+                // Fix CR#1: surface errors to the user instead of swallowing them
+                setDownloadErr('Could not generate the receipt. Please try again.');
+            } finally {
+                setDownloading(false);
+            }
+        };
+
         return (
             <div className="cart-success">
                 <h2>&#10003; Payment Successful!</h2>
                 <p>Thank you for your order. A confirmation email has been sent to you.</p>
+                {receiptData && (
+                    <button
+                        className="receipt-download-btn"
+                        onClick={handleDownload}
+                        disabled={downloading}
+                        aria-label="Download payment receipt as PDF"
+                    >
+                        {downloading ? 'Generating PDF…' : '⬇ Download Receipt (PDF)'}
+                    </button>
+                )}
+                {downloadErr && (
+                    <p className="cart-err" role="alert">
+                        {downloadErr}
+                    </p>
+                )}
             </div>
         );
     }
@@ -82,6 +122,9 @@ function CartItems() {
             const { currency, id: order_id } = bookings[0];
             const bookingIds = bookings.map((b) => b.bookingId);
 
+            // Snapshot cart items BEFORE clearing (needed for receipt)
+            const itemsSnapshot = cartItems.map((item) => ({ ...item }));
+
             // Step 2: Open Razorpay checkout
             await new Promise((resolve, reject) => {
                 const options = {
@@ -100,11 +143,25 @@ function CartItems() {
                                     razorpay_order_id: paymentResponse.razorpay_order_id,
                                     razorpay_payment_id: paymentResponse.razorpay_payment_id,
                                     razorpay_signature: paymentResponse.razorpay_signature,
-                                    bookingIds, // send all booking IDs
+                                    bookingIds,
                                 },
                                 authOpts
                             );
+
+                            // Build receipt data BEFORE clearing cart
+                            const receipt = {
+                                orderId: paymentResponse.razorpay_order_id,
+                                paymentId: paymentResponse.razorpay_payment_id,
+                                customerName: user?.user?.name || user?.name || 'Customer',
+                                // Fix CR#2: mirror the same nested fallback used by customerName
+                                customerEmail: user?.user?.email || user?.email || '',
+                                items: itemsSnapshot,
+                                totalAmount: combinedAmount / 100, // paise → rupees
+                                date: new Date().toISOString(),
+                            };
+
                             clearCart();
+                            setReceiptData(receipt);
                             setSuccess(true);
                             resolve();
                         } catch (verifyErr) {
@@ -127,8 +184,6 @@ function CartItems() {
                 };
                 const rzp = new window.Razorpay(options);
                 rzp.on('payment.failed', (failResp) => {
-                    // Razorpay fires payment.failed on user cancellation too —
-                    // treat cancellation silently, only show real payment errors
                     const reason = failResp?.error?.reason || '';
                     const isCancelled =
                         reason === 'payment_cancelled' ||

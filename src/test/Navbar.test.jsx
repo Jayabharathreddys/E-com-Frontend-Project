@@ -64,9 +64,13 @@ describe('Navbar - authenticated', () => {
     });
     afterEach(() => sessionStorage.clear());
 
+    // Logout is inside the dropdown — must open it first by clicking the account button
+    const openDropdown = () => fireEvent.click(screen.getByLabelText('Account menu'));
+
     it('shows Logout button when sessionStorage has user', () => {
         render(<NavbarWrapper />);
-        expect(screen.getByText('Logout')).toBeInTheDocument();
+        openDropdown();
+        expect(screen.getByText(/Logout/i)).toBeInTheDocument();
     });
 
     it('does not show Login link when authenticated', () => {
@@ -79,7 +83,8 @@ describe('Navbar - authenticated', () => {
         axios.post.mockResolvedValueOnce({});
         render(<NavbarWrapper />);
 
-        fireEvent.click(screen.getByText('Logout'));
+        openDropdown();
+        fireEvent.click(screen.getByText(/Logout/i));
 
         await waitFor(() => {
             expect(axios.post).toHaveBeenCalledWith(
@@ -94,7 +99,8 @@ describe('Navbar - authenticated', () => {
         axios.post.mockResolvedValueOnce({});
         render(<NavbarWrapper />);
 
-        fireEvent.click(screen.getByText('Logout'));
+        openDropdown();
+        fireEvent.click(screen.getByText(/Logout/i));
 
         await waitFor(() => {
             expect(sessionStorage.getItem('auth_user')).toBeNull();

@@ -5,6 +5,8 @@ import Unauthorized from '../pages/unauthorized/Unauthorized';
 import useFetchData from '../hooks/useFetchData';
 import ProductListing from '../pages/productListing/ProductListing';
 import CartItems from '../pages/cartItems/CartItems';
+import Orders from '../pages/orders/Orders';
+import OrderDetail from '../pages/orderDetail/OrderDetail';
 import Signup from '../pages/signup/Signup';
 import Login from '../pages/login/Login';
 import RequireAuth from '../components/requireAuth/RequireAuth';
@@ -30,6 +32,8 @@ const AppRoutes = () => {
 
                 <Route element={<RequireAuth />}>
                     <Route path="/cart" element={<CartItems />} />
+                    <Route path="/orders" element={<Orders />} />
+                    <Route path="/orders/:orderId" element={<OrderDetail />} />
                 </Route>
 
                 <Route path="*" element={<NotFound />} />
