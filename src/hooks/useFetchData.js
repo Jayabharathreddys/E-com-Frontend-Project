@@ -21,13 +21,17 @@ const useFetchData = (url, initialData) => {
         const fetchData = async () => {
             setIsLoading(true);
             try {
-                const token = sessionStorage.getItem('auth_token');
-                const headers = token ? { Authorization: `Bearer ${token}` } : {};
-                const res = await Axios.get(url, {
+                const BASE_URL = import.meta.env.VITE_BASE_URL || 'http://localhost:3001';
+                const isOwnBackend = url.startsWith(BASE_URL);
+                const token = isOwnBackend ? sessionStorage.getItem('auth_token') : null;
+                const config = {
                     signal: controller.signal,
-                    withCredentials: true,
-                    headers,
-                });
+                    ...(isOwnBackend && {
+                        withCredentials: true,
+                        headers: token ? { Authorization: `Bearer ${token}` } : {},
+                    }),
+                };
+                const res = await Axios.get(url, config);
                 setData(res.data);
                 setError(null);
             } catch (err) {
