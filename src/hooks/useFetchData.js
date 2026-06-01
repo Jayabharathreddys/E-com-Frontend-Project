@@ -21,13 +21,24 @@ const useFetchData = (url, initialData) => {
         const fetchData = async () => {
             setIsLoading(true);
             try {
-                const token = sessionStorage.getItem('auth_token');
-                const headers = token ? { Authorization: `Bearer ${token}` } : {};
-                const res = await Axios.get(url, {
+                const BASE_URL = import.meta.env.VITE_BASE_URL || 'http://localhost:3001';
+                // Use origin comparison so a host like "localhost:3001.attacker.com"
+                // doesn't accidentally match via a plain startsWith prefix check.
+                let isOwnBackend = false;
+                try {
+                    isOwnBackend = new URL(url).origin === new URL(BASE_URL).origin;
+                } catch {
+                    /* unparseable URL — treat as external */
+                }
+                const token = isOwnBackend ? sessionStorage.getItem('auth_token') : null;
+                const config = {
                     signal: controller.signal,
-                    withCredentials: true,
-                    headers,
-                });
+                    ...(isOwnBackend && {
+                        withCredentials: true,
+                        headers: token ? { Authorization: `Bearer ${token}` } : {},
+                    }),
+                };
+                const res = await Axios.get(url, config);
                 setData(res.data);
                 setError(null);
             } catch (err) {
