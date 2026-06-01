@@ -1,19 +1,16 @@
 /**
- * generateReceipt
+ * Build a jsPDF A4 receipt document from provided receipt data.
  *
- * Pure function — takes receipt data and returns a jsPDF document instance.
- * Keeping PDF logic separate from React makes it independently testable.
- *
- * @param {object} data
- * @param {string}   data.orderId        - Razorpay order ID
- * @param {string}   data.paymentId      - Razorpay payment ID
- * @param {string}   data.customerName   - Buyer name
- * @param {string}   data.customerEmail  - Buyer email
- * @param {Array}    data.items          - Cart items [{ title, quantity, price }]
- * @param {number}   data.totalAmount    - Grand total (Rs.)
- * @param {string}   data.date           - ISO date string
- * @param {object}   jsPDFClass          - jsPDF constructor (injected for testability)
- * @returns {object} jsPDF document instance
+ * @param {object} data - Receipt fields.
+ * @param {string} data.orderId - Razorpay order ID.
+ * @param {string} data.paymentId - Razorpay payment ID.
+ * @param {string} data.customerName - Buyer name.
+ * @param {string} data.customerEmail - Buyer email.
+ * @param {Array<{title?: string, name?: string, quantity?: number, price?: number|string}>} data.items - Cart items; each item may include title/name, quantity, and price.
+ * @param {number|string} data.totalAmount - Grand total in rupees.
+ * @param {string} data.date - ISO date string.
+ * @param {Function} jsPDFClass - jsPDF constructor to create the document (injected for testability).
+ * @returns {object} The constructed jsPDF document instance.
  */
 export function generateReceipt(data, jsPDFClass) {
     const { orderId, paymentId, customerName, customerEmail, items, totalAmount, date } = data;
@@ -141,10 +138,19 @@ export function generateReceipt(data, jsPDFClass) {
 }
 
 /**
- * downloadReceipt
+ * Generate a PDF receipt from payment data and trigger a browser download.
  *
- * Convenience wrapper — generates and immediately triggers a browser download.
- * Dynamically imports jsPDF so the ~300 KB library is only loaded after payment.
+ * Builds a receipt PDF using the provided payment and customer fields and saves
+ * it as `JBE-Receipt-<orderId|timestamp>.pdf` to initiate a browser download.
+ *
+ * @param {Object} data - Receipt data.
+ * @param {string} [data.orderId] - Order identifier.
+ * @param {string} [data.paymentId] - Payment identifier.
+ * @param {string} [data.customerName] - Customer's full name.
+ * @param {string} [data.customerEmail] - Customer's email address.
+ * @param {Array<Object>} [data.items] - Line items, each with `title`/`name`, `price`, and `quantity`.
+ * @param {number|string} [data.totalAmount] - Grand total amount.
+ * @param {string|number|Date} [data.date] - Date to display on the receipt.
  */
 export async function downloadReceipt(data) {
     const { jsPDF } = await import('jspdf');
