@@ -19,6 +19,7 @@ const ForgotPassword = lazy(() => import('../pages/forgotPassword/ForgotPassword
 const ResetPassword = lazy(() => import('../pages/resetPassword/ResetPassword'));
 const Unauthorized = lazy(() => import('../pages/unauthorized/Unauthorized'));
 const NotFound = lazy(() => import('../pages/notFound/NotFound'));
+const ComingSoon = lazy(() => import('../pages/comingSoon/ComingSoon'));
 
 const AppRoutes = () => {
     const { data: categories, isLoading } = useFetchData(urlConfig.CATEGORIES_URL, []);
@@ -41,6 +42,11 @@ const AppRoutes = () => {
                         <Route path="/cart" element={<CartItems />} />
                         <Route path="/orders" element={<Orders />} />
                         <Route path="/orders/:orderId" element={<OrderDetail />} />
+                        {/* Stub routes for features under development */}
+                        <Route path="/wishlist" element={<ComingSoon />} />
+                        <Route path="/dashboard" element={<ComingSoon />} />
+                        <Route path="/addresses" element={<ComingSoon />} />
+                        <Route path="/profile" element={<ComingSoon />} />
                     </Route>
 
                     <Route path="*" element={<NotFound />} />

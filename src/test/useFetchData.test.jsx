@@ -127,4 +127,209 @@ describe('useFetchData', () => {
             expect.objectContaining({ signal: expect.any(AbortSignal) })
         );
     });
+
+    // ── Auth-scoping tests ──────────────────────────────────────────────────
+
+    describe('auth header scoping', () => {
+        beforeEach(() => {
+            vi.stubEnv('VITE_BASE_URL', 'http://localhost:3001');
+            sessionStorage.clear();
+        });
+        afterEach(() => {
+            vi.unstubAllEnvs();
+            sessionStorage.clear();
+        });
+
+        it('sends withCredentials + Authorization when URL matches own backend and token exists', async () => {
+            sessionStorage.setItem('auth_token', 'my-secret-token');
+            axios.get.mockResolvedValueOnce({ data: {} });
+
+            renderHook(() => useFetchData('http://localhost:3001/api/products', {}));
+
+            await waitFor(() => expect(axios.get).toHaveBeenCalledTimes(1));
+            expect(axios.get).toHaveBeenCalledWith(
+                'http://localhost:3001/api/products',
+                expect.objectContaining({
+                    withCredentials: true,
+                    headers: { Authorization: 'Bearer my-secret-token' },
+                })
+            );
+        });
+
+        it('sends withCredentials but empty headers when URL matches own backend and no token', async () => {
+            sessionStorage.removeItem('auth_token');
+            axios.get.mockResolvedValueOnce({ data: {} });
+
+            renderHook(() => useFetchData('http://localhost:3001/api/orders', {}));
+
+            await waitFor(() => expect(axios.get).toHaveBeenCalledTimes(1));
+            expect(axios.get).toHaveBeenCalledWith(
+                'http://localhost:3001/api/orders',
+                expect.objectContaining({ withCredentials: true, headers: {} })
+            );
+        });
+
+        it('does NOT send withCredentials or Authorization for an external URL', async () => {
+            sessionStorage.setItem('auth_token', 'should-not-be-sent');
+            axios.get.mockResolvedValueOnce({ data: [] });
+
+            renderHook(() => useFetchData('https://external-cdn.example.com/data.json', []));
+
+            await waitFor(() => expect(axios.get).toHaveBeenCalledTimes(1));
+            const [, config] = axios.get.mock.calls[0];
+            expect(config).not.toHaveProperty('withCredentials');
+            expect(config).not.toHaveProperty('headers');
+        });
+
+        it('does NOT treat a prefix-colliding host as own backend', async () => {
+            sessionStorage.setItem('auth_token', 'should-not-leak');
+            axios.get.mockResolvedValueOnce({ data: [] });
+
+            renderHook(() => useFetchData('http://localhost:3001.attacker.com/steal', []));
+
+            await waitFor(() => expect(axios.get).toHaveBeenCalledTimes(1));
+            const [, config] = axios.get.mock.calls[0];
+            expect(config).not.toHaveProperty('withCredentials');
+            expect(config).not.toHaveProperty('headers');
+        });
+    });
+});
+
+describe('useFetchData – auth scoping (PR: fix/usefetchdata-auth-scope)', () => {
+    beforeEach(() => {
+        vi.clearAllMocks();
+        sessionStorage.clear();
+        // Reset any stubbed env vars after each test
+        vi.unstubAllEnvs();
+    });
+
+    // --- own-backend URL with a token ---
+
+    it('sends withCredentials and Authorization header when URL matches default BASE_URL and token exists', async () => {
+        sessionStorage.setItem('auth_token', 'my-secret-token');
+        axios.get.mockResolvedValueOnce({ data: {} });
+
+        renderHook(() => useFetchData('http://localhost:3001/api/products', {}));
+
+        await waitFor(() => expect(axios.get).toHaveBeenCalledTimes(1));
+        expect(axios.get).toHaveBeenCalledWith(
+            'http://localhost:3001/api/products',
+            expect.objectContaining({
+                withCredentials: true,
+                headers: { Authorization: 'Bearer my-secret-token' },
+            })
+        );
+    });
+
+    // --- own-backend URL without a token ---
+
+    it('sends withCredentials but empty headers when URL matches BASE_URL and no token in sessionStorage', async () => {
+        // Ensure no token is stored
+        sessionStorage.removeItem('auth_token');
+        axios.get.mockResolvedValueOnce({ data: {} });
+
+        renderHook(() => useFetchData('http://localhost:3001/api/orders', {}));
+
+        await waitFor(() => expect(axios.get).toHaveBeenCalledTimes(1));
+        expect(axios.get).toHaveBeenCalledWith(
+            'http://localhost:3001/api/orders',
+            expect.objectContaining({
+                withCredentials: true,
+                headers: {},
+            })
+        );
+    });
+
+    // --- external (third-party) URL ---
+
+    it('does NOT send withCredentials or Authorization header for an external URL', async () => {
+        sessionStorage.setItem('auth_token', 'should-not-be-sent');
+        axios.get.mockResolvedValueOnce({ data: [] });
+
+        renderHook(() => useFetchData('https://external-cdn.example.com/data.json', []));
+
+        await waitFor(() => expect(axios.get).toHaveBeenCalledTimes(1));
+        const [, config] = axios.get.mock.calls[0];
+        expect(config).not.toHaveProperty('withCredentials');
+        expect(config).not.toHaveProperty('headers');
+    });
+
+    it('does not read sessionStorage for external URLs', async () => {
+        const getItemSpy = vi.spyOn(Storage.prototype, 'getItem');
+        axios.get.mockResolvedValueOnce({ data: [] });
+
+        renderHook(() => useFetchData('https://third-party.api.com/items', []));
+
+        await waitFor(() => expect(axios.get).toHaveBeenCalledTimes(1));
+        expect(getItemSpy).not.toHaveBeenCalledWith('auth_token');
+        getItemSpy.mockRestore();
+    });
+
+    // --- external URL still gets the AbortSignal (regression) ---
+
+    it('still passes an AbortSignal for external URLs', async () => {
+        axios.get.mockResolvedValueOnce({ data: [] });
+
+        renderHook(() => useFetchData('https://external.example.com/data', []));
+
+        await waitFor(() => expect(axios.get).toHaveBeenCalledTimes(1));
+        expect(axios.get).toHaveBeenCalledWith(
+            'https://external.example.com/data',
+            expect.objectContaining({ signal: expect.any(AbortSignal) })
+        );
+    });
+
+    // --- VITE_BASE_URL environment variable ---
+
+    it('uses VITE_BASE_URL env var to determine own-backend origin', async () => {
+        vi.stubEnv('VITE_BASE_URL', 'https://api.myapp.com');
+        sessionStorage.setItem('auth_token', 'env-token');
+        axios.get.mockResolvedValueOnce({ data: {} });
+
+        renderHook(() => useFetchData('https://api.myapp.com/v1/resource', {}));
+
+        await waitFor(() => expect(axios.get).toHaveBeenCalledTimes(1));
+        expect(axios.get).toHaveBeenCalledWith(
+            'https://api.myapp.com/v1/resource',
+            expect.objectContaining({
+                withCredentials: true,
+                headers: { Authorization: 'Bearer env-token' },
+            })
+        );
+    });
+
+    it('treats a URL as external when VITE_BASE_URL is set and URL does not match', async () => {
+        vi.stubEnv('VITE_BASE_URL', 'https://api.myapp.com');
+        sessionStorage.setItem('auth_token', 'should-not-leak');
+        axios.get.mockResolvedValueOnce({ data: [] });
+
+        // localhost:3001 is no longer the base; this URL is now "external"
+        renderHook(() => useFetchData('http://localhost:3001/api/items', []));
+
+        await waitFor(() => expect(axios.get).toHaveBeenCalledTimes(1));
+        const [, config] = axios.get.mock.calls[0];
+        expect(config).not.toHaveProperty('withCredentials');
+        expect(config).not.toHaveProperty('headers');
+    });
+
+    // --- boundary: URL is a prefix match, not just exact host ---
+
+    it('treats a URL whose origin matches BASE_URL prefix as own-backend', async () => {
+        sessionStorage.setItem('auth_token', 'prefix-token');
+        axios.get.mockResolvedValueOnce({ data: {} });
+
+        // Deep nested path under the default base URL
+        renderHook(() =>
+            useFetchData('http://localhost:3001/api/v2/users/123/profile', {})
+        );
+
+        await waitFor(() => expect(axios.get).toHaveBeenCalledTimes(1));
+        expect(axios.get).toHaveBeenCalledWith(
+            'http://localhost:3001/api/v2/users/123/profile',
+            expect.objectContaining({
+                withCredentials: true,
+                headers: { Authorization: 'Bearer prefix-token' },
+            })
+        );
+    });
 });
