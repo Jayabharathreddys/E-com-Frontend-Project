@@ -87,17 +87,19 @@ const Navbar = ({ categories, isLoading }) => {
 
                         {dropdownOpen && (
                             <ul className="nav-dropdown" role="menu">
-                                <li role="menuitem">
+                                <li role="none">
                                     <Link
                                         to="/orders"
+                                        role="menuitem"
                                         className="nav-dropdown-item"
                                         onClick={() => setDropdownOpen(false)}
                                     >
                                         📦 My Orders
                                     </Link>
                                 </li>
-                                <li role="menuitem">
+                                <li role="none">
                                     <button
+                                        role="menuitem"
                                         className="nav-dropdown-item nav-dropdown-logout"
                                         onClick={handleLogout}
                                     >

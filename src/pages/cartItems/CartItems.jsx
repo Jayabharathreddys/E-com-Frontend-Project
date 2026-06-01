@@ -119,9 +119,11 @@ function CartItems() {
             const loaded = await loadRazorpayScript();
             if (!loaded) throw new Error('Razorpay SDK failed to load. Check your connection.');
 
-            // Step 1: Create all bookings in parallel (faster than sequential for-loop)
+            // Step 1: Create all bookings in parallel.
+            // Using allSettled so a single failure doesn't silently orphan the
+            // bookings that already succeeded — we cancel those explicitly.
             const authOpts = { withCredentials: true, headers: getAuthHeaders() };
-            const bookings = await Promise.all(
+            const results = await Promise.allSettled(
                 cartItems.map(async (item) => {
                     const productId = item._id || item.id;
                     const priceAtThatTime = parseFloat(item.price) || 0;
@@ -133,6 +135,27 @@ function CartItems() {
                     return { ...resp.data, productId };
                 })
             );
+
+            const failed = results.filter((r) => r.status === 'rejected');
+            const succeeded = results.filter((r) => r.status === 'fulfilled').map((r) => r.value);
+
+            if (failed.length > 0) {
+                // Cancel any bookings that did succeed so the backend doesn't
+                // hold orphaned records waiting for a payment that will never come.
+                await Promise.allSettled(
+                    succeeded
+                        .filter((b) => b.bookingId)
+                        .map((b) => axios.delete(`${urlConfig.ORDER_URL}/${b.bookingId}`, authOpts))
+                );
+                const firstErr = failed[0].reason;
+                throw new Error(
+                    firstErr?.response?.data?.message ||
+                        firstErr?.message ||
+                        'One or more items could not be booked. Please try again.'
+                );
+            }
+
+            const bookings = succeeded;
 
             // Use first booking's Razorpay order for the payment session;
             // the combined amount covers all items.
