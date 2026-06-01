@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useCart } from '../../context/cart/useCart';
 import useAuth from '../../context/auth/useAuth';
 import CartItem from '../../components/cartItem';
@@ -44,7 +45,7 @@ function CartItems() {
         return (
             <div className="cart-auth-msg">
                 <p>
-                    Please <a href="/login">log in</a> to view your cart and checkout.
+                    Please <Link to="/login">log in</Link> to view your cart and checkout.
                 </p>
             </div>
         );
@@ -67,18 +68,34 @@ function CartItems() {
 
         return (
             <div className="cart-success">
-                <h2>&#10003; Payment Successful!</h2>
-                <p>Thank you for your order. A confirmation email has been sent to you.</p>
-                {receiptData && (
-                    <button
-                        className="receipt-download-btn"
-                        onClick={handleDownload}
-                        disabled={downloading}
-                        aria-label="Download payment receipt as PDF"
-                    >
-                        {downloading ? 'Generating PDF…' : '⬇ Download Receipt (PDF)'}
-                    </button>
+                <div className="cart-success-icon">✓</div>
+                <h2>Payment Successful!</h2>
+                <p className="cart-success-sub">
+                    Thank you for your order. A confirmation email has been sent to you.
+                </p>
+                {receiptData?.orderId && (
+                    <p className="cart-success-orderid">
+                        Order ID: <span>{receiptData.orderId}</span>
+                    </p>
                 )}
+                <div className="cart-success-actions">
+                    {receiptData && (
+                        <button
+                            className="receipt-download-btn"
+                            onClick={handleDownload}
+                            disabled={downloading}
+                            aria-label="Download payment receipt as PDF"
+                        >
+                            {downloading ? 'Generating PDF…' : '⬇ Download Receipt (PDF)'}
+                        </button>
+                    )}
+                    <Link to="/orders" className="cart-success-btn-orders">
+                        📦 View My Orders
+                    </Link>
+                    <Link to="/" className="cart-success-btn-shop">
+                        Continue Shopping
+                    </Link>
+                </div>
                 {downloadErr && (
                     <p className="cart-err" role="alert">
                         {downloadErr}
@@ -102,19 +119,20 @@ function CartItems() {
             const loaded = await loadRazorpayScript();
             if (!loaded) throw new Error('Razorpay SDK failed to load. Check your connection.');
 
-            // Step 1: Create one booking per cart item sequentially and collect bookingIds
+            // Step 1: Create all bookings in parallel (faster than sequential for-loop)
             const authOpts = { withCredentials: true, headers: getAuthHeaders() };
-            const bookings = [];
-            for (const item of cartItems) {
-                const productId = item._id || item.id;
-                const priceAtThatTime = parseFloat(item.price) || 0;
-                const resp = await axios.post(
-                    `${urlConfig.ORDER_URL}/${productId}`,
-                    { priceAtThatTime, quantity: item.quantity || 1 },
-                    authOpts
-                );
-                bookings.push({ ...resp.data, productId });
-            }
+            const bookings = await Promise.all(
+                cartItems.map(async (item) => {
+                    const productId = item._id || item.id;
+                    const priceAtThatTime = parseFloat(item.price) || 0;
+                    const resp = await axios.post(
+                        `${urlConfig.ORDER_URL}/${productId}`,
+                        { priceAtThatTime, quantity: item.quantity || 1 },
+                        authOpts
+                    );
+                    return { ...resp.data, productId };
+                })
+            );
 
             // Use first booking's Razorpay order for the payment session;
             // the combined amount covers all items.

@@ -1,6 +1,6 @@
-import { memo } from 'react';
+import { memo, useState, useRef, useEffect } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
-import { FaOpencart } from 'react-icons/fa';
+import { FaOpencart, FaUserCircle, FaChevronDown } from 'react-icons/fa';
 import './navbar.css';
 import Loader from '../loader';
 import { useCart } from '../../context/cart/useCart';
@@ -12,17 +12,37 @@ const Navbar = ({ categories, isLoading }) => {
     const { totalQuantity, clearCart } = useCart();
     const { user, logout } = useAuth();
     const navigate = useNavigate();
+    const [dropdownOpen, setDropdownOpen] = useState(false);
+    const dropdownRef = useRef(null);
 
-    // Extract display name: login response stores {user:{name:...}} or {name:...}
     const displayName = user?.user?.name || user?.name || null;
 
+    // Close dropdown when clicking outside or pressing Escape
+    useEffect(() => {
+        const handleClickOutside = (e) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+                setDropdownOpen(false);
+            }
+        };
+        const handleKeyDown = (e) => {
+            if (e.key === 'Escape') setDropdownOpen(false);
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        document.addEventListener('keydown', handleKeyDown);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+            document.removeEventListener('keydown', handleKeyDown);
+        };
+    }, []);
+
     const handleLogout = async () => {
+        setDropdownOpen(false);
         try {
             await axios.post(urlConfig.LOGOUT_URL, {}, { withCredentials: true });
         } catch (_) {
             /* ignore */
         }
-        clearCart(); // clear cart badge on logout
+        clearCart();
         logout();
         navigate('/login');
     };
@@ -45,20 +65,59 @@ const Navbar = ({ categories, isLoading }) => {
                     )}
                 </ul>
             </div>
+
             <div className="nav-right">
                 {user ? (
-                    <>
-                        {displayName && <span className="nav-greeting">Hi, {displayName}!</span>}
-                        <button className="nav-logout-btn" onClick={handleLogout}>
-                            Logout
+                    <div className="nav-account" ref={dropdownRef}>
+                        <button
+                            className="nav-account-btn"
+                            onClick={() => setDropdownOpen((prev) => !prev)}
+                            aria-haspopup="true"
+                            aria-expanded={dropdownOpen}
+                            aria-label="Account menu"
+                        >
+                            <FaUserCircle className="nav-account-icon" />
+                            <span className="nav-account-name">
+                                {displayName ? `Hi, ${displayName.split(' ')[0]}!` : 'My Account'}
+                            </span>
+                            <FaChevronDown
+                                className={`nav-chevron ${dropdownOpen ? 'open' : ''}`}
+                            />
                         </button>
-                    </>
+
+                        {dropdownOpen && (
+                            <ul className="nav-dropdown" role="menu">
+                                <li role="menuitem">
+                                    <Link
+                                        to="/orders"
+                                        className="nav-dropdown-item"
+                                        onClick={() => setDropdownOpen(false)}
+                                    >
+                                        📦 My Orders
+                                    </Link>
+                                </li>
+                                <li role="menuitem">
+                                    <button
+                                        className="nav-dropdown-item nav-dropdown-logout"
+                                        onClick={handleLogout}
+                                    >
+                                        🚪 Logout
+                                    </button>
+                                </li>
+                            </ul>
+                        )}
+                    </div>
                 ) : (
                     <Link to="/login" className="nav-link nav-login-link">
                         Login
                     </Link>
                 )}
-                <Link to="/cart" className="cart-icon-container">
+
+                <Link
+                    to="/cart"
+                    className="cart-icon-container"
+                    aria-label={`Cart, ${totalQuantity} items`}
+                >
                     <FaOpencart className="cart-icon" />
                     {totalQuantity > 0 && <div className="cart-badge">{totalQuantity}</div>}
                 </Link>

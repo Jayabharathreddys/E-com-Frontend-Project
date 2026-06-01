@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import useAuth from '../../context/auth/useAuth';
 import useFetchData from '../../hooks/useFetchData';
 import urlConfig from '../../utils/urlConfig';
+import { STATUS_BADGE, formatDate } from '../../utils/orderUtils';
 import Loader from '../../components/loader';
 import './orders.css';
 
@@ -12,22 +13,6 @@ const STATUS_TABS = [
     { key: 'pending', label: 'Pending' },
     { key: 'failed', label: 'Failed' },
 ];
-
-const STATUS_BADGE = {
-    confirmed: { cls: 'badge-confirmed', text: '✓ Confirmed' },
-    pending: { cls: 'badge-pending', text: '⏳ Pending' },
-    failed: { cls: 'badge-failed', text: '✗ Failed' },
-    success: { cls: 'badge-confirmed', text: '✓ Success' },
-};
-
-function formatDate(iso) {
-    if (!iso) return '—';
-    return new Date(iso).toLocaleDateString('en-IN', {
-        day: 'numeric',
-        month: 'short',
-        year: 'numeric',
-    });
-}
 
 function OrderCard({ order }) {
     const product = order.product || {};

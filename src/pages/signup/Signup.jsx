@@ -82,13 +82,14 @@ function Signup() {
                             name="name"
                             placeholder="Your name.."
                             value={name}
+                            aria-describedby={errors.name ? 'name-error' : undefined}
                             onChange={(e) => {
                                 setName(e.target.value);
                                 setErrors((p) => ({ ...p, name: '' }));
                             }}
                         />
                         {errors.name && (
-                            <span className="field-error" role="alert">
+                            <span className="field-error" id="name-error" role="alert">
                                 {errors.name}
                             </span>
                         )}
@@ -100,13 +101,14 @@ function Signup() {
                             name="email"
                             placeholder="Your email.."
                             value={email}
+                            aria-describedby={errors.email ? 'email-error' : undefined}
                             onChange={(e) => {
                                 setEmail(e.target.value);
                                 setErrors((p) => ({ ...p, email: '' }));
                             }}
                         />
                         {errors.email && (
-                            <span className="field-error" role="alert">
+                            <span className="field-error" id="email-error" role="alert">
                                 {errors.email}
                             </span>
                         )}
@@ -118,13 +120,14 @@ function Signup() {
                             name="password"
                             placeholder="Min 6 characters.."
                             value={password}
+                            aria-describedby={errors.password ? 'password-error' : undefined}
                             onChange={(e) => {
                                 setPassword(e.target.value);
                                 setErrors((p) => ({ ...p, password: '' }));
                             }}
                         />
                         {errors.password && (
-                            <span className="field-error" role="alert">
+                            <span className="field-error" id="password-error" role="alert">
                                 {errors.password}
                             </span>
                         )}
@@ -136,13 +139,16 @@ function Signup() {
                             name="confirmPassword"
                             placeholder="Repeat password.."
                             value={confirmPassword}
+                            aria-describedby={
+                                errors.confirmPassword ? 'confirm-password-error' : undefined
+                            }
                             onChange={(e) => {
                                 setConfirmPassword(e.target.value);
                                 setErrors((p) => ({ ...p, confirmPassword: '' }));
                             }}
                         />
                         {errors.confirmPassword && (
-                            <span className="field-error" role="alert">
+                            <span className="field-error" id="confirm-password-error" role="alert">
                                 {errors.confirmPassword}
                             </span>
                         )}

@@ -3,6 +3,7 @@ import useFetchData from '../../hooks/useFetchData';
 import urlConfig from '../../utils/urlConfig';
 import { useCart } from '../../context/cart/useCart';
 import { downloadReceipt } from '../../utils/generateReceipt';
+import { STATUS_BADGE, formatDate } from '../../utils/orderUtils';
 import useAuth from '../../context/auth/useAuth';
 import Loader from '../../components/loader';
 import { useState } from 'react';
@@ -24,24 +25,6 @@ const STATUS_PROGRESS = {
     success: 2,
     failed: 0,
 };
-
-const STATUS_BADGE = {
-    confirmed: { cls: 'badge-confirmed', text: '✓ Confirmed' },
-    pending: { cls: 'badge-pending', text: '⏳ Pending' },
-    failed: { cls: 'badge-failed', text: '✗ Failed' },
-    success: { cls: 'badge-confirmed', text: '✓ Success' },
-};
-
-function formatDate(iso) {
-    if (!iso) return '—';
-    return new Date(iso).toLocaleString('en-IN', {
-        day: 'numeric',
-        month: 'short',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-    });
-}
 
 export default function OrderDetail() {
     const { orderId } = useParams();
@@ -136,7 +119,9 @@ export default function OrderDetail() {
                     <div>
                         <h1 className="order-detail-title">Order Details</h1>
                         <p className="order-detail-id">{order.payment_order_id || order._id}</p>
-                        <p className="order-detail-date">Placed on {formatDate(order.createdAt)}</p>
+                        <p className="order-detail-date">
+                            Placed on {formatDate(order.createdAt, 'datetime')}
+                        </p>
                     </div>
                     <span className={`order-badge ${badge.cls}`}>{badge.text}</span>
                 </div>

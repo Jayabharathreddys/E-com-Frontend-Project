@@ -85,4 +85,32 @@ describe('useFetchData', () => {
         expect(result.current.error).toBeTruthy();
         expect(result.current.data).toEqual({ message: [] });
     });
+
+    it('does not update state after unmount (AbortController cancels the request)', async () => {
+        // Simulate a cancellation error that Axios throws on abort
+        const cancelError = new Error('Request aborted');
+        cancelError.name = 'CanceledError';
+        axios.get.mockRejectedValueOnce(cancelError);
+        // Also provide isCancel behaviour
+        axios.isCancel = vi.fn((err) => err.name === 'CanceledError');
+
+        const { result, unmount } = renderHook(() => useFetchData('http://test.com', []));
+
+        unmount();
+
+        // After unmount the aborted error should be silently swallowed
+        // data and error should remain at their initial values
+        await waitFor(() => expect(result.current.isLoading).toBe(true)); // still loading, no setState
+        expect(result.current.error).toBeNull();
+        expect(result.current.data).toEqual([]);
+    });
+
+    it('passes an AbortSignal to axios.get', () => {
+        axios.get.mockResolvedValueOnce({ data: [] });
+        renderHook(() => useFetchData('http://test.com', []));
+        expect(axios.get).toHaveBeenCalledWith(
+            'http://test.com',
+            expect.objectContaining({ signal: expect.any(AbortSignal) })
+        );
+    });
 });
