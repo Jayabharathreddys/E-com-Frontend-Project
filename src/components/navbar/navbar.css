@@ -90,23 +90,124 @@
     background: rgba(255, 255, 255, 0.2);
 }
 
+/* ── Account dropdown ────────────────────────────────────────────────────── */
+.nav-account {
+    position: relative;
+}
+
+.nav-account-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: transparent;
+    border: 2px solid rgba(255, 255, 255, 0.7);
+    border-radius: 6px;
+    color: #fff;
+    font-size: 1.3rem;
+    padding: 0.4rem 1rem;
+    cursor: pointer;
+    transition: background 0.2s;
+    white-space: nowrap;
+}
+
+.nav-account-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.nav-account-icon {
+    font-size: 1.6rem;
+}
+
+.nav-account-name {
+    max-width: 14rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.nav-chevron {
+    font-size: 1rem;
+    transition: transform 0.2s;
+}
+
+.nav-chevron.open {
+    transform: rotate(180deg);
+}
+
+.nav-dropdown {
+    position: absolute;
+    top: calc(100% + 0.6rem);
+    right: 0;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    min-width: 17rem;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+    list-style: none;
+    padding: 0.4rem 0;
+    z-index: 1000;
+}
+
+.nav-dropdown-item {
+    display: block;
+    width: 100%;
+    padding: 1rem 1.6rem;
+    font-size: 1.3rem;
+    color: #333;
+    text-decoration: none;
+    background: none;
+    border: none;
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.nav-dropdown-item:hover {
+    background: #f4f6fc;
+    color: #3d5a99;
+}
+
+.nav-dropdown-logout {
+    color: #cc0000;
+    border-top: 1px solid #eee;
+    margin-top: 0.2rem;
+    padding-top: 1rem;
+}
+
+.nav-dropdown-logout:hover {
+    background: #fff5f5;
+    color: #cc0000;
+}
+
 /* Cart icon */
 .cart-icon-container {
-    padding: 0.6rem 0.8rem;
-    border: 2px solid #fff;
-    border-radius: 50%;
+    padding: 0.5rem 1.2rem;
+    border: 2px solid rgba(255, 255, 255, 0.7);
+    border-radius: 6px;
     cursor: pointer;
     position: relative;
     display: flex;
     align-items: center;
+    gap: 0.6rem;
     justify-content: center;
     text-decoration: none;
+    transition: background 0.2s;
+}
+
+.cart-icon-container:hover {
+    background: rgba(255, 255, 255, 0.15);
 }
 
 .cart-icon {
     color: #fff;
-    font-size: 1.5rem;
+    font-size: 1.6rem;
     vertical-align: middle;
+}
+
+.cart-label {
+    color: #fff;
+    font-size: 1.3rem;
+    font-weight: 500;
+    white-space: nowrap;
 }
 
 .cart-badge {
@@ -117,10 +218,16 @@
     color: #fff;
     font-size: 1rem;
     font-weight: bold;
-    width: 2rem;
+    min-width: 2rem;
     height: 2rem;
-    border-radius: 50%;
+    border-radius: 10px;
+    padding: 0 0.4rem;
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+/* Dropdown icon spacing */
+.nav-dropdown-icon {
+    margin-right: 0.4rem;
 }
