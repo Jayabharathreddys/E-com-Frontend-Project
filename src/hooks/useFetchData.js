@@ -21,7 +21,13 @@ const useFetchData = (url, initialData) => {
         const fetchData = async () => {
             setIsLoading(true);
             try {
-                const res = await Axios.get(url, { signal: controller.signal });
+                const token = sessionStorage.getItem('auth_token');
+                const headers = token ? { Authorization: `Bearer ${token}` } : {};
+                const res = await Axios.get(url, {
+                    signal: controller.signal,
+                    withCredentials: true,
+                    headers,
+                });
                 setData(res.data);
                 setError(null);
             } catch (err) {

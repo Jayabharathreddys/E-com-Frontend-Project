@@ -89,12 +89,53 @@ const Navbar = ({ categories, isLoading }) => {
                             <ul className="nav-dropdown" role="menu">
                                 <li role="none">
                                     <Link
+                                        to="/dashboard"
+                                        role="menuitem"
+                                        className="nav-dropdown-item"
+                                        onClick={() => setDropdownOpen(false)}
+                                    >
+                                        <span className="nav-dropdown-icon">🏠</span> Dashboard
+                                    </Link>
+                                </li>
+                                <li role="none">
+                                    <Link
                                         to="/orders"
                                         role="menuitem"
                                         className="nav-dropdown-item"
                                         onClick={() => setDropdownOpen(false)}
                                     >
-                                        📦 My Orders
+                                        <span className="nav-dropdown-icon">📦</span> My Orders
+                                    </Link>
+                                </li>
+                                <li role="none">
+                                    <Link
+                                        to="/wishlist"
+                                        role="menuitem"
+                                        className="nav-dropdown-item"
+                                        onClick={() => setDropdownOpen(false)}
+                                    >
+                                        <span className="nav-dropdown-icon">❤️</span> Wishlist
+                                    </Link>
+                                </li>
+                                <li role="none">
+                                    <Link
+                                        to="/addresses"
+                                        role="menuitem"
+                                        className="nav-dropdown-item"
+                                        onClick={() => setDropdownOpen(false)}
+                                    >
+                                        <span className="nav-dropdown-icon">📍</span> Addresses
+                                    </Link>
+                                </li>
+                                <li role="none">
+                                    <Link
+                                        to="/profile"
+                                        role="menuitem"
+                                        className="nav-dropdown-item"
+                                        onClick={() => setDropdownOpen(false)}
+                                    >
+                                        <span className="nav-dropdown-icon">⚙️</span> Profile
+                                        Settings
                                     </Link>
                                 </li>
                                 <li role="none">
@@ -103,7 +144,7 @@ const Navbar = ({ categories, isLoading }) => {
                                         className="nav-dropdown-item nav-dropdown-logout"
                                         onClick={handleLogout}
                                     >
-                                        🚪 Logout
+                                        <span className="nav-dropdown-icon">🚪</span> Logout
                                     </button>
                                 </li>
                             </ul>
@@ -121,6 +162,7 @@ const Navbar = ({ categories, isLoading }) => {
                     aria-label={`Cart, ${totalQuantity} items`}
                 >
                     <FaOpencart className="cart-icon" />
+                    <span className="cart-label">Cart</span>
                     {totalQuantity > 0 && <div className="cart-badge">{totalQuantity}</div>}
                 </Link>
             </div>
