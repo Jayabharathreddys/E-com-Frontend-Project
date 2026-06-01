@@ -17,6 +17,13 @@ const loadRazorpayScript = () =>
         document.body.appendChild(script);
     });
 
+/**
+ * Render the shopping cart interface, handle the Razorpay checkout flow, and provide a receipt download after successful payment.
+ *
+ * Displays a login prompt when no user is present, lists cart items with a net total and a "Pay Now" action when items exist, and shows a payment success view with a PDF receipt download button after a successful transaction. Initiates backend booking creation and payment verification, clears the cart on verified payment, and stores receipt data for download.
+ *
+ * @returns {JSX.Element} The cart page UI component.
+ */
 function CartItems() {
     const { cart, clearCart } = useCart();
     const { user } = useAuth();
