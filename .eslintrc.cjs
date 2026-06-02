@@ -28,7 +28,9 @@ module.exports = {
     },
     {
       // Vitest test files — declare all test globals so ESLint doesn't flag them
+      // Exclude e2e/ so Playwright specs don't inherit Vitest-only globals (vi, etc.)
       files: ['src/test/**/*.{js,jsx}', '**/*.test.{js,jsx}', '**/*.spec.{js,jsx}'],
+      excludedFiles: ['e2e/**/*.js'],
       env: { browser: true },
       globals: {
         describe: 'readonly',

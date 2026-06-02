@@ -10,9 +10,9 @@ import { defineConfig, devices } from '@playwright/test';
 export default defineConfig({
     testDir: './e2e',
     timeout: 45_000,
-    fullyParallel: false,           // sequential — avoids auth state conflicts
+    fullyParallel: false,
     retries: process.env.CI ? 2 : 1,
-    workers: process.env.CI ? 1 : undefined,
+    workers: 1, // always 1 — specs share backend auth state for the same test accounts
     reporter: [
         ['list'],
         ['html', { outputFolder: 'playwright-report', open: 'never' }],

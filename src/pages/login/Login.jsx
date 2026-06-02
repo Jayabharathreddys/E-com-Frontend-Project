@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import './login.css';
 import urlConfig from '../../utils/urlConfig.js';
@@ -17,6 +17,21 @@ function Login() {
     const { setAuth } = useAuth();
 
     const from = location.state?.from?.pathname || '/';
+
+    // Capture once on mount — read initial state before it can be cleared
+    const [successMsg] = useState(() => location.state?.message || null);
+
+    // Clear the route state so the banner doesn't reappear on back-navigation
+    useEffect(() => {
+        if (!successMsg) return;
+        const remaining = { ...(location.state || {}) };
+        delete remaining.message;
+        navigate(location.pathname, {
+            replace: true,
+            state: Object.keys(remaining).length ? remaining : null,
+        });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     const validate = () => {
         const newErrors = {};
@@ -71,9 +86,6 @@ function Login() {
                 <p>Signing you in...</p>
             </div>
         );
-
-    // Message passed from signup redirect (e.g. "Account created! Please sign in.")
-    const successMsg = location.state?.message;
 
     return (
         <div className="signinscreen">
