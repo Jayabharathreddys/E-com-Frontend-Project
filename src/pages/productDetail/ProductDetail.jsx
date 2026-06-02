@@ -121,7 +121,9 @@ export default function ProductDetail() {
         { data: [], total: 0, totalPages: 1 }
     );
 
-    const product = productData?.data || productData?.message;
+    // Only accept a proper object — productData.message can be a string (error text)
+    const product =
+        productData?.data && typeof productData.data === 'object' ? productData.data : null;
     const reviews = reviewData?.data || [];
     const totalPages = reviewData?.totalPages || 1;
     const totalReviews = reviewData?.total || 0;

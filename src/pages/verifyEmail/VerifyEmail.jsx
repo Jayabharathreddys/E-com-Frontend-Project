@@ -72,11 +72,12 @@ export default function VerifyEmail() {
                     <input
                         type="text"
                         inputMode="numeric"
-                        maxLength={10}
+                        pattern="\d{6}"
+                        maxLength={6}
                         className="verify-otp-input"
-                        placeholder="Enter OTP"
+                        placeholder="000000"
                         value={otp}
-                        onChange={(e) => setOtp(e.target.value)}
+                        onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
                         aria-label="Email verification OTP"
                         autoFocus
                     />

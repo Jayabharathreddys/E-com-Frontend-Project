@@ -50,7 +50,7 @@ function ProductModal({ product, onClose, onSaved }) {
         setErr('');
         const payload = {
             ...form,
-            price: form.price,
+            price: parseFloat(form.price),
             categories: form.categories
                 .split(',')
                 .map((s) => s.trim())
@@ -59,7 +59,7 @@ function ProductModal({ product, onClose, onSaved }) {
                 .split(',')
                 .map((s) => s.trim())
                 .filter(Boolean),
-            stock_quantity: form.stock_quantity,
+            stock_quantity: parseInt(form.stock_quantity, 10),
         };
         try {
             if (isEdit) {

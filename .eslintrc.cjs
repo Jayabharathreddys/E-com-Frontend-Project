@@ -22,6 +22,11 @@ module.exports = {
   },
   overrides: [
     {
+      // Playwright config + e2e test files — need Node.js globals (process, require, module)
+      files: ['playwright.config.js', 'playwright.config.cjs', 'e2e/**/*.js'],
+      env: { node: true, es2020: true },
+    },
+    {
       // Vitest test files — declare all test globals so ESLint doesn't flag them
       files: ['src/test/**/*.{js,jsx}', '**/*.test.{js,jsx}', '**/*.spec.{js,jsx}'],
       env: { browser: true },

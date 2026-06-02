@@ -38,7 +38,7 @@ test.describe('Navbar', () => {
 
     test('Cart link navigates to /cart', async ({ page }) => {
         await loginAs(page, TEST_USER);
-        await page.locator('.cart-icon-container, [aria-label*="Cart"]').click();
+        await page.locator('.cart-icon-container').click();
         await expect(page).toHaveURL('/cart');
     });
 });

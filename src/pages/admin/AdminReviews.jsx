@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import axios from 'axios';
 import useFetchData from '../../hooks/useFetchData';
@@ -42,6 +42,11 @@ export default function AdminReviews() {
     const reviews = data?.data || [];
     const totalPages = data?.totalPages || 1;
     const total = data?.total || 0;
+
+    // Clamp page when totalPages shrinks (e.g. after deleting the last row on a page)
+    useEffect(() => {
+        setPage((p) => Math.min(p, totalPages));
+    }, [totalPages]);
 
     const filtered = search
         ? reviews.filter(

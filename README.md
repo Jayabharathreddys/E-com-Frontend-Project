@@ -22,7 +22,7 @@ React + Vite single-page application for the JBE Commerce e-commerce platform.
 | State       | React Context API (Auth + Cart) |
 | Testing     | Vitest + React Testing Library  |
 | Payments    | Razorpay Checkout.js            |
-| Deployment  | Netlify                         |
+| Deployment  | Vercel                          |
 
 ---
 
@@ -68,7 +68,7 @@ npm run build
 | `VITE_BASE_URL`        | Yes      | Backend API base URL (no trailing slash)     | `https://ecom-backend-3sh8.onrender.com` |
 | `VITE_RAZORPAY_KEY_ID` | Yes      | Razorpay public key (baked in at build time) | `rzp_test_xxx`                           |
 
-> **Note:** Vite bakes env vars at **build time**. After adding/changing a Netlify env var, trigger a manual redeploy.
+> **Note:** Vite bakes env vars at **build time**. After adding/changing a Vercel env var, trigger a manual redeploy.
 >
 > **Security:** Never add server-side secrets (JWT signing key, Razorpay secret) to this repo — they are backend-only.
 
@@ -181,16 +181,16 @@ src/
 
 ---
 
-## Deployment (Netlify)
+## Deployment (Vercel)
 
-1. Push to GitHub — Netlify auto-deploys on push
+1. Push to GitHub — Vercel auto-deploys on push
 2. Build command: `npm run build`
 3. Publish directory: `dist`
-4. Add `public/_redirects` with `/* /index.html 200` for SPA routing
-5. Set environment variables in Netlify → Site Settings → Environment Variables:
+4. SPA routing handled by `vercel.json` rewrite (`/* → /index.html`)
+5. Set environment variables in Vercel → Project → Settings → Environment Variables:
     - `VITE_BASE_URL`
     - `VITE_RAZORPAY_KEY_ID`
-6. Trigger a manual redeploy after changing env vars
+6. Trigger a manual redeploy after adding or changing env vars
 
 ---
 

@@ -1,5 +1,5 @@
 // @ts-check
-const { defineConfig, devices } = require('@playwright/test');
+import { defineConfig, devices } from '@playwright/test';
 
 /**
  * JBE Commerce — Playwright e2e configuration
@@ -7,7 +7,7 @@ const { defineConfig, devices } = require('@playwright/test');
  * Run against local dev server:  BASE_URL=http://localhost:5173 npx playwright test
  * Run against production:        npx playwright test  (uses Vercel URL below)
  */
-module.exports = defineConfig({
+export default defineConfig({
     testDir: './e2e',
     timeout: 45_000,
     fullyParallel: false,           // sequential — avoids auth state conflicts
@@ -22,7 +22,8 @@ module.exports = defineConfig({
         screenshot: 'only-on-failure',
         video: 'retain-on-failure',
         trace: 'on-first-retry',
-        baseURL: process.env.BASE_URL || 'https://e-com-frontend-project-eta.vercel.app',
+        // Default to local dev server — set BASE_URL=https://... for production runs
+        baseURL: process.env.BASE_URL || 'http://localhost:5173',
         actionTimeout: 12_000,
         navigationTimeout: 25_000,
     },

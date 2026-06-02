@@ -87,21 +87,20 @@ const Navbar = ({ categories, isLoading }) => {
 
                         {dropdownOpen && (
                             <ul className="nav-dropdown" role="menu">
-                                {displayName &&
-                                    (user?.user?.role === 'admin' || user?.role === 'admin') && (
-                                        <li role="none">
-                                            <Link
-                                                to="/admin"
-                                                role="menuitem"
-                                                className="nav-dropdown-item"
-                                                style={{ color: '#6a0dad', fontWeight: 700 }}
-                                                onClick={() => setDropdownOpen(false)}
-                                            >
-                                                <span className="nav-dropdown-icon">⚡</span> Admin
-                                                Panel
-                                            </Link>
-                                        </li>
-                                    )}
+                                {(user?.user?.role === 'admin' || user?.role === 'admin') && (
+                                    <li role="none">
+                                        <Link
+                                            to="/admin"
+                                            role="menuitem"
+                                            className="nav-dropdown-item"
+                                            style={{ color: '#6a0dad', fontWeight: 700 }}
+                                            onClick={() => setDropdownOpen(false)}
+                                        >
+                                            <span className="nav-dropdown-icon">⚡</span> Admin
+                                            Panel
+                                        </Link>
+                                    </li>
+                                )}
                                 <li role="none">
                                     <Link
                                         to="/dashboard"

@@ -42,9 +42,12 @@ test.describe('Admin Panel', () => {
         test('admin products add modal opens and closes', async ({ page }) => {
             await page.goto('/admin/products');
             await page.getByRole('button', { name: /add product/i }).click();
-            await expect(page.getByText(/add product/i)).toBeVisible();
+            // Assert the modal card is visible (not the persistent page button)
+            await expect(page.locator('.modal-card')).toBeVisible();
+            await expect(page.getByRole('heading', { name: /add product/i, level: 2 })).toBeVisible();
             await page.getByRole('button', { name: /cancel/i }).click();
-            await expect(page.getByText(/add product/i)).not.toBeVisible();
+            // Modal card should be gone after cancel
+            await expect(page.locator('.modal-card')).not.toBeVisible();
         });
 
         test('admin users page shows role dropdowns', async ({ page }) => {

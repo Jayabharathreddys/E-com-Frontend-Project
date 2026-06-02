@@ -150,7 +150,7 @@ export default function AdminOrders() {
                                                 <td>{o.quantity || 1}</td>
                                                 <td style={{ fontWeight: 600 }}>₹{amount}</td>
                                                 <td>
-                                                    <span className={`badge badge-${o.status}`}>
+                                                    <span className={`badge ${badge.cls}`}>
                                                         {badge.text}
                                                     </span>
                                                 </td>

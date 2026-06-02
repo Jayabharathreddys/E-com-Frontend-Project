@@ -65,7 +65,8 @@
     background: #fff;
     border: 1px solid #e0e0e0;
     border-radius: 12px;
-    overflow: hidden;
+    overflow-x: auto; /* scroll wide tables on small screens instead of clipping */
+    overflow-y: hidden;
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
 }
 
@@ -93,13 +94,14 @@
     border-color: #3d5a99;
 }
 
-table {
+/* Scoped to .admin-table-wrap to avoid leaking into non-admin tables */
+.admin-table-wrap table {
     width: 100%;
     border-collapse: collapse;
     font-size: 1.3rem;
 }
 
-thead th {
+.admin-table-wrap thead th {
     background: #f8f9fc;
     padding: 1.2rem 1.6rem;
     text-align: left;
@@ -109,18 +111,18 @@ thead th {
     white-space: nowrap;
 }
 
-tbody tr:hover {
+.admin-table-wrap tbody tr:hover {
     background: #fafbff;
 }
 
-tbody td {
+.admin-table-wrap tbody td {
     padding: 1.2rem 1.6rem;
     border-bottom: 1px solid #f0f0f0;
     color: #333;
     vertical-align: middle;
 }
 
-tbody tr:last-child td {
+.admin-table-wrap tbody tr:last-child td {
     border-bottom: none;
 }
 

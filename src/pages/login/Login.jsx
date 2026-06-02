@@ -72,11 +72,32 @@ function Login() {
             </div>
         );
 
+    // Message passed from signup redirect (e.g. "Account created! Please sign in.")
+    const successMsg = location.state?.message;
+
     return (
         <div className="signinscreen">
             <div className="container">
                 <div className="innerContainer">
                     <p>Login</p>
+
+                    {successMsg && (
+                        <div
+                            className="successContainer"
+                            role="status"
+                            style={{
+                                background: '#e6f4ea',
+                                color: '#2d7a3a',
+                                padding: '1rem 1.4rem',
+                                borderRadius: '8px',
+                                marginBottom: '1.2rem',
+                                fontSize: '1.3rem',
+                                fontWeight: 600,
+                            }}
+                        >
+                            {successMsg}
+                        </div>
+                    )}
 
                     {serverErr && (
                         <div className="errContainer" role="alert">

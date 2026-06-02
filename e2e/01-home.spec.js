@@ -17,13 +17,12 @@ test.describe('Home — Product Listing', () => {
     });
 
     test('pagination renders and next page works', async ({ page }) => {
+        // Products must load — fail the test if they don't
+        await page.waitForSelector('.product-card, [class*="product"]', { timeout: 15_000 });
         const nextBtn = page.getByRole('button', { name: /next|›/i });
-        // Only assert pagination exists if products are loaded
-        await page.waitForSelector('.product-card, [class*="product"]', { timeout: 15_000 }).catch(() => {});
-        if (await nextBtn.isVisible()) {
-            await nextBtn.click();
-            await expect(page.getByRole('button', { name: /prev|‹/i })).toBeVisible();
-        }
+        await expect(nextBtn).toBeVisible({ timeout: 5_000 });
+        await nextBtn.click();
+        await expect(page.getByRole('button', { name: /prev|‹/i })).toBeVisible();
     });
 
     test('shows the cart icon in navbar', async ({ page }) => {
