@@ -1,5 +1,8 @@
 import { test, expect } from '@playwright/test';
 
+// Stable selector for a rendered product card (excludes spinners/empty-state elements)
+const PRODUCT_CARD = '.product-list .product-card, .product-card, [data-testid="product-card"]';
+
 test.describe('Home — Product Listing', () => {
     test.beforeEach(async ({ page }) => {
         await page.goto('/');
@@ -13,12 +16,12 @@ test.describe('Home — Product Listing', () => {
 
     test('renders product cards', async ({ page }) => {
         // Products loaded from the backend
-        await expect(page.locator('.product-list > *, .product-card, [data-testid="product-card"]').first()).toBeVisible({ timeout: 15_000 });
+        await expect(page.locator(PRODUCT_CARD).first()).toBeVisible({ timeout: 15_000 });
     });
 
     test('pagination renders and next page works', async ({ page }) => {
         // Products must load — fail the test if they don't
-        await page.waitForSelector('.product-list > *, .product-card', { timeout: 15_000 });
+        await page.waitForSelector(PRODUCT_CARD, { timeout: 15_000 });
         const nextBtn = page.getByRole('button', { name: /next|›/i });
         await expect(nextBtn).toBeVisible({ timeout: 5_000 });
         await nextBtn.click();
