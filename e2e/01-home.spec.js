@@ -13,12 +13,12 @@ test.describe('Home — Product Listing', () => {
 
     test('renders product cards', async ({ page }) => {
         // Products loaded from the backend
-        await expect(page.locator('.product-card, [data-testid="product-card"], .products-list > *').first()).toBeVisible({ timeout: 15_000 });
+        await expect(page.locator('.product-list > *, .product-card, [data-testid="product-card"]').first()).toBeVisible({ timeout: 15_000 });
     });
 
     test('pagination renders and next page works', async ({ page }) => {
         // Products must load — fail the test if they don't
-        await page.waitForSelector('.product-card, [class*="product"]', { timeout: 15_000 });
+        await page.waitForSelector('.product-list > *, .product-card', { timeout: 15_000 });
         const nextBtn = page.getByRole('button', { name: /next|›/i });
         await expect(nextBtn).toBeVisible({ timeout: 5_000 });
         await nextBtn.click();

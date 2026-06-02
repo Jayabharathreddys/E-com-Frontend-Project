@@ -4,7 +4,7 @@ import { loginAs, logout, TEST_USER } from './helpers.js';
 test.describe('Authentication', () => {
     test('shows validation errors on empty login submit', async ({ page }) => {
         await page.goto('/login');
-        await page.getByRole('button', { name: /sign in|log in/i }).click();
+        await page.locator('input[type="submit"][value="Login"]').click();
         await expect(page.getByText(/email is required/i)).toBeVisible();
         await expect(page.getByText(/password is required/i)).toBeVisible();
     });
@@ -13,7 +13,7 @@ test.describe('Authentication', () => {
         await page.goto('/login');
         await page.getByLabel(/email/i).fill('nobody@nowhere.com');
         await page.getByLabel(/password/i).fill('wrongpassword1');
-        await page.getByRole('button', { name: /sign in|log in/i }).click();
+        await page.locator('input[type="submit"][value="Login"]').click();
         await expect(page.getByText(/incorrect|not found|invalid/i)).toBeVisible({ timeout: 10_000 });
     });
 

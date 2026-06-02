@@ -6,7 +6,8 @@ test.describe('Forgot Password', () => {
     });
 
     test('page renders correctly', async ({ page }) => {
-        await expect(page.getByRole('heading', { name: /forgot|reset/i })).toBeVisible();
+        // Forgot Password page uses a <p> tag, not a heading element
+        await expect(page.getByText(/forgot password/i).first()).toBeVisible();
     });
 
     test('shows validation error for empty email', async ({ page }) => {
