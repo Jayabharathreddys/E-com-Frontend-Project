@@ -1,0 +1,375 @@
+.pd-page {
+    max-width: 1100px;
+    margin: 2.4rem auto;
+    padding: 0 1.6rem 6rem;
+}
+
+.pd-back {
+    display: inline-block;
+    font-size: 1.3rem;
+    color: #3d5a99;
+    text-decoration: none;
+    margin-bottom: 2rem;
+}
+.pd-back:hover {
+    text-decoration: underline;
+}
+
+/* ── Main product layout ─────────────────────────────────────────────────── */
+.pd-main {
+    display: flex;
+    gap: 4rem;
+    margin-bottom: 4rem;
+    flex-wrap: wrap;
+}
+
+.pd-image-col {
+    flex: 0 0 38rem;
+    max-width: 38rem;
+}
+
+.pd-image {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: contain;
+    border-radius: 12px;
+    border: 1px solid #eee;
+    background: #f9f9f9;
+}
+
+.pd-thumbnails {
+    display: flex;
+    gap: 0.8rem;
+    margin-top: 1rem;
+    flex-wrap: wrap;
+}
+
+.pd-thumb {
+    width: 6.4rem;
+    height: 6.4rem;
+    object-fit: contain;
+    border: 1.5px solid #eee;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: border-color 0.15s;
+}
+.pd-thumb:hover {
+    border-color: #3d5a99;
+}
+
+.pd-info-col {
+    flex: 1;
+    min-width: 28rem;
+}
+
+.pd-name {
+    font-size: 2.4rem;
+    font-weight: 700;
+    color: #222;
+    margin: 0 0 0.4rem;
+}
+
+.pd-brand {
+    font-size: 1.4rem;
+    color: #888;
+    margin: 0 0 1.2rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.pd-rating-row {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    margin-bottom: 1.2rem;
+}
+
+.pd-rating-num {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #222;
+}
+.pd-review-count {
+    font-size: 1.3rem;
+    color: #888;
+}
+
+.pd-price {
+    font-size: 3rem;
+    font-weight: 700;
+    color: #3d5a99;
+    margin: 0 0 0.4rem;
+}
+
+.pd-discount {
+    display: inline-block;
+    background: #e6f4ea;
+    color: #2d7a3a;
+    font-size: 1.3rem;
+    font-weight: 600;
+    padding: 0.2rem 0.8rem;
+    border-radius: 20px;
+    margin-bottom: 1.2rem;
+}
+
+.pd-stock {
+    margin-bottom: 1.6rem;
+    font-size: 1.3rem;
+}
+.in-stock {
+    color: #2d7a3a;
+    font-weight: 600;
+}
+.out-stock {
+    color: #cc0000;
+    font-weight: 600;
+}
+
+.pd-description {
+    font-size: 1.4rem;
+    color: #555;
+    line-height: 1.7;
+    margin-bottom: 2.4rem;
+}
+
+.pd-added-msg {
+    color: #2d7a3a;
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin-bottom: 0.8rem;
+}
+
+.pd-add-btn {
+    background: #3d5a99;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 1.2rem 3rem;
+    font-size: 1.6rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.pd-add-btn:hover:not(:disabled) {
+    background: #2e4377;
+}
+.pd-add-btn:disabled {
+    background: #aaa;
+    cursor: not-allowed;
+}
+
+.pd-error {
+    text-align: center;
+    padding: 6rem 2rem;
+    color: #666;
+    font-size: 1.5rem;
+}
+
+/* ── Stars ───────────────────────────────────────────────────────────────── */
+.star-row {
+    display: inline-flex;
+}
+
+.star {
+    font-size: 2rem;
+    color: #ddd;
+    line-height: 1;
+}
+.star.filled {
+    color: #f59e0b;
+}
+.star.interactive {
+    cursor: pointer;
+    transition: color 0.1s;
+}
+.star.interactive:hover {
+    color: #f59e0b;
+}
+
+/* ── Reviews section ──────────────────────────────────────────────────────── */
+.pd-reviews {
+    border-top: 2px solid #e0e0e0;
+    padding-top: 3rem;
+}
+
+.pd-reviews-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #222;
+    margin: 0 0 2.4rem;
+}
+
+.review-login-prompt {
+    font-size: 1.4rem;
+    color: #666;
+    margin-bottom: 2rem;
+}
+.review-login-prompt a {
+    color: #3d5a99;
+}
+
+.no-reviews {
+    font-size: 1.4rem;
+    color: #888;
+    margin: 2rem 0;
+}
+
+/* Review form */
+.review-form {
+    background: #f8f9fc;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    padding: 2rem;
+    margin-bottom: 3rem;
+}
+
+.review-form-title {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #222;
+    margin: 0 0 1.2rem;
+}
+
+.review-form-rating {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.2rem;
+    font-size: 1.3rem;
+    color: #555;
+}
+
+.rating-label {
+    font-size: 1.3rem;
+    color: #3d5a99;
+    font-weight: 600;
+}
+
+.review-textarea {
+    width: 100%;
+    border: 1.5px solid #ddd;
+    border-radius: 8px;
+    padding: 1rem 1.2rem;
+    font-size: 1.4rem;
+    resize: vertical;
+    outline: none;
+    transition: border-color 0.2s;
+    box-sizing: border-box;
+    font-family: inherit;
+}
+.review-textarea:focus {
+    border-color: #3d5a99;
+}
+
+.review-err {
+    color: #cc0000;
+    font-size: 1.3rem;
+    margin: 0.8rem 0;
+}
+
+.review-submit-btn {
+    background: #3d5a99;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 0.9rem 2.4rem;
+    font-size: 1.4rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 1.2rem;
+    transition: background 0.2s;
+}
+.review-submit-btn:hover:not(:disabled) {
+    background: #2e4377;
+}
+.review-submit-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Review list */
+.review-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.6rem;
+    margin-bottom: 2rem;
+}
+
+.review-card {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 1.6rem;
+}
+
+.review-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.8rem;
+    flex-wrap: wrap;
+}
+
+.review-author {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: #222;
+}
+.review-date {
+    font-size: 1.2rem;
+    color: #999;
+    margin-left: auto;
+}
+.review-text {
+    font-size: 1.4rem;
+    color: #444;
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* Pagination */
+.review-pagination {
+    display: flex;
+    gap: 0.6rem;
+    justify-content: center;
+    margin-top: 2rem;
+}
+
+.rev-page-btn {
+    min-width: 3.4rem;
+    height: 3.4rem;
+    border: 1.5px solid #ddd;
+    border-radius: 6px;
+    background: #fff;
+    color: #444;
+    font-size: 1.3rem;
+    cursor: pointer;
+    transition:
+        background 0.15s,
+        border-color 0.15s;
+}
+.rev-page-btn:hover:not(:disabled) {
+    border-color: #3d5a99;
+    color: #3d5a99;
+}
+.rev-page-btn.active {
+    background: #3d5a99;
+    border-color: #3d5a99;
+    color: #fff;
+    font-weight: 700;
+}
+.rev-page-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .pd-main {
+        flex-direction: column;
+    }
+    .pd-image-col {
+        flex: none;
+        max-width: 100%;
+    }
+}

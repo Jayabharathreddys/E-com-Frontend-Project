@@ -84,10 +84,93 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    height: 50vh;
+    min-height: 60vh;
     font-size: 1.5rem;
     text-align: center;
-    gap: 1.6rem;
+    gap: 1.2rem;
+    padding: 4rem 2rem;
+}
+
+.cart-success-icon {
+    width: 7rem;
+    height: 7rem;
+    border-radius: 50%;
+    background: #3d5a99;
+    color: #fff;
+    font-size: 3.6rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+}
+
+.cart-success h2 {
+    font-size: 2.4rem;
+    color: #222;
+}
+
+.cart-success-sub {
+    font-size: 1.4rem;
+    color: #555;
+    max-width: 40rem;
+}
+
+.cart-success-orderid {
+    font-size: 1.2rem;
+    color: #777;
+    background: #f4f6fc;
+    padding: 0.6rem 1.6rem;
+    border-radius: 6px;
+}
+
+.cart-success-orderid span {
+    font-family: monospace;
+    color: #3d5a99;
+    font-weight: 600;
+}
+
+.cart-success-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 0.6rem;
+}
+
+.cart-success-btn-orders {
+    display: inline-block;
+    background: #3d5a99;
+    color: #fff;
+    padding: 1.1rem 2.4rem;
+    font-size: 1.3rem;
+    font-weight: 600;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: background 0.2s;
+}
+
+.cart-success-btn-orders:hover {
+    background: #2e4377;
+}
+
+.cart-success-btn-shop {
+    display: inline-block;
+    background: transparent;
+    color: #3d5a99;
+    padding: 1.1rem 2.4rem;
+    font-size: 1.3rem;
+    font-weight: 600;
+    border-radius: 8px;
+    text-decoration: none;
+    border: 2px solid #3d5a99;
+    transition:
+        background 0.2s,
+        color 0.2s;
+}
+
+.cart-success-btn-shop:hover {
+    background: #3d5a99;
+    color: #fff;
 }
 
 .receipt-download-btn {

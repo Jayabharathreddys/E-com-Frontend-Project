@@ -45,7 +45,13 @@ function Signup() {
                 confirmPassword,
             });
             if (resp.data) {
-                navigate('/login', { state: { message: 'Account created! Please sign in.' } });
+                // Redirect to email verification page with the new user's ID
+                const userId = resp.data.userId || resp.data.user?._id;
+                if (userId) {
+                    navigate(`/verify-email/${userId}`, { state: { email } });
+                } else {
+                    navigate('/login', { state: { message: 'Account created! Please sign in.' } });
+                }
             }
         } catch (err) {
             const msg = err.response?.data?.message || 'Registration failed. Please try again.';
