@@ -22,11 +22,14 @@ const useFetchData = (url, initialData) => {
             setIsLoading(true);
             try {
                 const BASE_URL = import.meta.env.VITE_BASE_URL || 'http://localhost:3001';
-                // Use origin comparison so a host like "localhost:3001.attacker.com"
-                // doesn't accidentally match via a plain startsWith prefix check.
+                // Resolve relative URLs against BASE_URL before comparing origins.
+                // Use origin comparison (not startsWith) so a prefix-colliding host
+                // like "localhost:3001.attacker.com" is never treated as own-backend.
                 let isOwnBackend = false;
                 try {
-                    isOwnBackend = new URL(url).origin === new URL(BASE_URL).origin;
+                    // new URL(url) throws for relative paths; resolve against BASE_URL
+                    const resolved = new URL(url, BASE_URL);
+                    isOwnBackend = resolved.origin === new URL(BASE_URL).origin;
                 } catch {
                     /* unparseable URL — treat as external */
                 }

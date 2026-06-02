@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import './login.css';
 import urlConfig from '../../utils/urlConfig.js';
@@ -17,6 +17,21 @@ function Login() {
     const { setAuth } = useAuth();
 
     const from = location.state?.from?.pathname || '/';
+
+    // Capture once on mount — read initial state before it can be cleared
+    const [successMsg] = useState(() => location.state?.message || null);
+
+    // Clear the route state so the banner doesn't reappear on back-navigation
+    useEffect(() => {
+        if (!successMsg) return;
+        const remaining = { ...(location.state || {}) };
+        delete remaining.message;
+        navigate(location.pathname, {
+            replace: true,
+            state: Object.keys(remaining).length ? remaining : null,
+        });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     const validate = () => {
         const newErrors = {};
@@ -52,6 +67,11 @@ function Login() {
                 navigate(from, { replace: true });
             }
         } catch (err) {
+            // 403 unverified — redirect to verify-email page
+            if (err.response?.data?.status === 'unverified' && err.response?.data?.userId) {
+                navigate(`/verify-email/${err.response.data.userId}`);
+                return;
+            }
             const msg =
                 err.response?.data?.message || 'Login failed. Please check your credentials.';
             setServerErr(msg);
@@ -72,6 +92,24 @@ function Login() {
             <div className="container">
                 <div className="innerContainer">
                     <p>Login</p>
+
+                    {successMsg && (
+                        <div
+                            className="successContainer"
+                            role="status"
+                            style={{
+                                background: '#e6f4ea',
+                                color: '#2d7a3a',
+                                padding: '1rem 1.4rem',
+                                borderRadius: '8px',
+                                marginBottom: '1.2rem',
+                                fontSize: '1.3rem',
+                                fontWeight: 600,
+                            }}
+                        >
+                            {successMsg}
+                        </div>
+                    )}
 
                     {serverErr && (
                         <div className="errContainer" role="alert">
