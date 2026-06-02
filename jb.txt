@@ -1,0 +1,277 @@
+    1  cd "/c/OneDrive_2/OneDrive/scaler/CapstoneProject/E-com-Backend-Project"
+    2  printf 'npx lint-staged\n' > .husky/pre-commit
+    3  npm run format
+    4  git add -A
+    5  git commit -m "chore: expand .gitignore, format all files with Prettier
+
+- Expand .gitignore: add coverage, logs, editor files
+- Run Prettier across all 31 source files
+- Fix husky pre-commit hook (no surrounding quotes)"
+    6  rm .eslintrc.cjs
+    7  npm run lint
+    8  rm .eslintrc.cjs
+    9  npm run lint
+   10  npm run lint
+   11  npm run format
+   12  git add -A
+   13  git commit -m "chore: expand .gitignore, format all files, migrate to ESLint 9 flat config
+
+- Add eslint.config.cjs (ESLint 9 flat config — replaces .eslintrc.cjs)
+- Fix eqeqeq error in middleWares.js: == -> ===
+- Fix unused-var warnings in AuthController.js
+- Update no-unused-vars to ignore caught errors prefixed with _
+- Run Prettier across all 31 source files
+- Expand .gitignore with coverage, logs, editor files
+- Fix husky pre-commit hook"
+   14  git push origin main
+   15  cd "/c/OneDrive_2/OneDrive/scaler/CapstoneProject/E-com-Frontend-Project"
+   16  git checkout -b feature/pdf-receipt
+   17  npm install jspdf
+   18  npm test
+   19  npm test
+   20  npm run build
+   21  git add src/utils/generateReceipt.js         src/pages/cartItems/CartItems.jsx         src/pages/cartItems/cartItems.css         src/test/generateReceipt.test.js         src/test/CartItems.test.jsx         package.json
+   22  git add src/test/CartItems.test.jsx
+   23  git commit -m "feat: add PDF receipt download after successful payment
+
+- Add src/utils/generateReceipt.js — pure function that builds a
+  branded A4 receipt using jsPDF (dynamically imported to keep
+  initial bundle small)
+- CartItems: capture cart snapshot + payment IDs before clearing
+  cart; store as receiptData state
+- Show 'Download Receipt (PDF)' button on payment success screen
+- Button shows 'Generating PDF…' while the file is being created
+- Add .receipt-download-btn styles in cartItems.css
+- Add 19 unit tests in generateReceipt.test.js (mock jsPDF so
+  tests run in jsdom without a real browser)
+- Add 4 integration tests in CartItems.test.jsx covering button
+  visibility, aria-label, downloadReceipt call shape, loading state"
+   24  git push origin feature/pdf-receipt
+   25  cd "/c/OneDrive_2/OneDrive/scaler/CapstoneProject/E-com-Frontend-Project"
+   26  npm test
+   27  npm run build
+   28  git add src/pages/cartItems/CartItems.jsx         src/utils/generateReceipt.js         src/test/CartItems.test.jsx         src/test/generateReceipt.test.js
+   29  git commit -m "fix: address CodeRabbit PR review comments
+
+CR#1 (CartItems.jsx): catch downloadReceipt errors and surface them
+  via a dedicated downloadErr state rendered below the button — users
+  now see 'Could not generate the receipt' instead of a silent failure.
+
+CR#2 (CartItems.jsx): customerEmail now mirrors customerName fallback
+  path — checks user?.user?.email first, then user?.email — so the
+  receipt email is populated even when auth context nests the profile.
+
+CR#3 (generateReceipt.js): add A4 page-overflow guard inside the
+  items.forEach loop; calls doc.addPage() and re-draws the table header
+  when y would exceed (pageHeight - margin - 38 mm), ensuring grand
+  total and footer always render on a valid page for large carts (18+
+  items). pageH extracted from doc.internal.pageSize.getHeight().
+
+Nitpick (CartItems.test.jsx): stub document.querySelector in the PDF
+  receipt describe's beforeEach so loadRazorpayScript short-circuits
+  regardless of test execution order / sharding.
+
+Tests: add 2 new generateReceipt tests (pagination triggered / not
+  triggered); MockJsPDF now provides getHeight() and addPage()."
+   30  git push origin feature/pdf-receipt
+   31  git pull origin feature/pdf-receipt --rebase
+   32  git push origin feature/pdf-receipt
+   33  git add .
+   34  git rebase --continue
+   35  git push origin feature/pdf-receipt
+   36  git commit -m "fix: address CodeRabbit PR review comments (CR#1 CR#2 CR#3 nitpick)"
+   37  git pull origin feature/pdf-receipt --rebase
+   38  git push origin feature/pdf-receipt
+   39  npm test
+   40  npm test
+   41  npm run build
+   42  git add src/test/Navbar.test.jsx src/test/Orders.test.jsx
+   43  git add src/utils/generateReceipt.js
+   44  git add src/pages/orderDetail/OrderDetail.jsx         src/pages/orderDetail/orderDetail.css         src/pages/orders/Orders.jsx         src/pages/orders/orders.css         src/routes/AppRoutes.jsx         src/utils/urlConfig.js         src/test/OrderDetail.test.jsx         src/test/Orders.test.jsx
+   45  git commit -m "feat: order details page, search, Buy Again, Retry Payment, status timeline
+
+Order Details page (/orders/:orderId)
+- Status timeline (Order Placed → Payment → Packed → Shipped → Delivered)
+  shows progress based on booking status; hidden for failed orders
+- Failed banner + Retry Payment button for failed/pending orders
+- Buy Again button adds product back to cart (confirmed orders)
+- Download Invoice button triggers PDF generation
+- Responsive product section with image, qty, unit price, total
+- Payment summary with Free shipping and payment ID
+- Error/not-found state with back link
+
+Orders page improvements
+- Search bar — filters by order ID or product name (client-side)
+- 'View Details →' link on every order card
+- Tabs clear search on switch
+
+urlConfig: add ORDER_DETAIL_URL
+
+Tests
+- OrderDetail.test.jsx (15 tests): confirmed order (heading, product,
+  badge, amount, timeline, Download Invoice, Buy Again addToCart),
+  failed order (badge, banner, Retry, no timeline), error state
+- Orders.test.jsx: updated to cover search and view details link"
+   46  git add src/pages/orderDetail/OrderDetail.jsx
+   47  git add src/pages/orderDetail/OrderDetail.jsx         src/pages/orderDetail/orderDetail.css         src/pages/orders/Orders.jsx         src/pages/orders/orders.css         src/routes/AppRoutes.jsx         src/utils/urlConfig.js         src/test/OrderDetail.test.jsx         src/test/Orders.test.jsx
+   48  git commit -m "feat: order details page, search, Buy Again, Retry Payment, status timeline
+
+Order Details page (/orders/:orderId)
+- Status timeline (Order Placed → Payment → Packed → Shipped → Delivered)
+  shows progress based on booking status; hidden for failed orders
+- Failed banner + Retry Payment button for failed/pending orders
+- Buy Again button adds product back to cart (confirmed orders)
+- Download Invoice button triggers PDF generation
+- Responsive product section with image, qty, unit price, total
+- Payment summary with Free shipping and payment ID
+- Error/not-found state with back link
+
+Orders page improvements
+- Search bar — filters by order ID or product name (client-side)
+- 'View Details →' link on every order card
+- Tabs clear search on switch
+
+urlConfig: add ORDER_DETAIL_URL
+
+Tests
+- OrderDetail.test.jsx (15 tests): confirmed order (heading, product,
+  badge, amount, timeline, Download Invoice, Buy Again addToCart),
+  failed order (badge, banner, Retry, no timeline), error state
+- Orders.test.jsx: updated to cover search and view details link"
+   49  git push origin feature/pdf-receipt
+   50  cd "/c/OneDrive_2/OneDrive/scaler/CapstoneProject/E-com-Backend-Project"
+   51  git add src/routers/BookingRouter.js         __tests__/booking.test.js
+   52  git commit -m "feat: add GET /api/booking/detail/:bookingId endpoint
+
+Returns a single booking owned by the authenticated user.
+Populates product name, price, productImages, categories.
+Returns 404 if booking doesn't exist or belongs to a different user.
+Tests: 401 unauth, 404 not-found, 404/500 invalid ID."
+   53  git push origin main
+   54  cd "/c/OneDrive_2/OneDrive/scaler/CapstoneProject/E-com-Frontend-Project"
+   55  npm test
+   56  npm run build
+   57  git add src/utils/generateReceipt.js         src/pages/orders/Orders.jsx         src/pages/orderDetail/OrderDetail.jsx         src/pages/productListing/ProductListing.jsx         src/components/product/Product.jsx         src/components/cartItem/CartItem.jsx         src/test/OrderDetail.test.jsx         src/test/Orders.test.jsx
+   58  git commit -m "fix: address CodeRabbit review comments (4 findings)
+
+generateReceipt.js:
+- Date guard: replace new Date(date).toLocaleString() with parsedDate
+  check using isNaN(getTime()) — falls back to '—' for invalid dates
+- totalAmount NaN guard: Number(totalAmount) → (parseFloat(totalAmount)||0)
+  prevents 'Rs. NaN' when totalAmount is undefined/non-numeric
+
+Orders.jsx / OrderDetail.jsx / Product.jsx / CartItem.jsx / ProductListing.jsx:
+- Replace defunct via.placeholder.com with placehold.co across all 9 files
+
+OrderDetail.test.jsx:
+- 'does NOT render timeline for failed order': replace
+  await waitFor(() => failedOrder) (resolves immediately, not a real wait)
+  with await waitFor(() => getByText('✗ Failed')) so the assertion only
+  runs after the failed order is actually rendered"
+   59  git push origin feature/pdf-receipt
+   60  git branch
+   61  git add .env.example .gitignore   src/hooks/useFetchData.js   src/pages/cartItems/CartItems.jsx   src/pages/orders/Orders.jsx   src/pages/orderDetail/OrderDetail.jsx   src/routes/AppRoutes.jsx   src/utils/orderUtils.js   src/pages/signup/Signup.jsx   src/components/navbar/Navbar.jsx   src/test/orderUtils.test.js   src/test/useFetchData.test.jsx   src/test/Orders.test.jsx   src/test/CartProvider.test.jsx
+   62  git status
+   63  git commit -m "fix: code review enhancements — security, perf, a11y, tests
+
+- Remove SECRET_KEY from .env; add .env.example with placeholders
+- useFetchData: add AbortController to cancel on unmount/URL change
+- CartItems: parallel bookings via Promise.all (was sequential for-loop)
+- CartItems: replace bare <a href> with React Router <Link>
+- Extract shared STATUS_BADGE + formatDate to src/utils/orderUtils.js
+- AppRoutes: lazy-load 7 non-critical pages for Vite code splitting
+- Signup: add aria-describedby on all form error spans
+- Navbar: close dropdown on Escape key
+- Tests: +20 new cases (orderUtils, useFetchData abort, Orders search, CartProvider clearCart)"
+   64  git add src/hooks/useFetchData.js
+   65  git commit -m "fix: code review enhancements — security, perf, a11y, tests
+
+- Remove SECRET_KEY from .env; add .env.example with placeholders
+- useFetchData: add AbortController to cancel on unmount/URL change
+- CartItems: parallel bookings via Promise.all (was sequential for-loop)
+- CartItems: replace bare <a href> with React Router <Link>
+- Extract shared STATUS_BADGE + formatDate to src/utils/orderUtils.js
+- AppRoutes: lazy-load 7 non-critical pages for Vite code splitting
+- Signup: add aria-describedby on all form error spans
+- Navbar: close dropdown on Escape key
+- Tests: +20 new cases (orderUtils, useFetchData abort, Orders search, CartProvider clearCart)"
+   66  git push origin feature/pdf-receipt
+   67  git add src/pages/cartItems/CartItems.jsx         src/components/navbar/Navbar.jsx         src/test/useFetchData.test.jsx
+   68  git commit -m "fix: address CodeRabbit review comments
+
+- CartItems: Promise.allSettled + cancel orphaned bookings on partial failure
+- Navbar: move role=menuitem to <Link>/<button>, set <li> to role=none
+- useFetchData test: spy AbortController.abort, assert it fires on unmount"
+   69  git push origin feature/pdf-receipt
+   70  git pull origin feature/pdf-receipt --rebase
+   71  git push origin feature/pdf-receipt
+   72  git pull
+   73  git push origin feature/pdf-receipt
+   74  git pull origin feature/pdf-receipt --rebase
+   75  git push origin feature/pdf-receipt
+   76  git stash
+   77  git pull origin feature/pdf-receipt --rebase
+   78  git stash pop
+   79  git push origin feature/pdf-receipt
+   80  cd C:\OneDrive_2\OneDrive\scaler\CapstoneProject\E-com-Frontend-Project
+   81  npm install
+   82  npm test
+   83  npm test
+   84  git add src/pages/cartItems/CartItems.jsx
+   85  git commit -m "fix: log rollback failures for orphaned booking observability"
+   86  git push origin feature/pdf-receipt
+   87  npm test
+   88  git add src/pages/cartItems/CartItems.jsx
+   89  git commit -m "fix: throw distinct error when rollback DELETEs fail to prevent blind retries"
+   90  git push origin feature/pdf-receipt
+   91  npm test
+   92  npm test
+   93  git add src/hooks/useFetchData.js         src/pages/orders/Orders.jsx         src/pages/orders/orders.css         src/pages/cartItems/CartItems.jsx         src/components/navbar/Navbar.jsx         src/components/navbar/navbar.css         src/test/Orders.test.jsx
+   94  git commit -m "fix: auth in useFetchData + redesign Orders/Navbar + CodeRabbit rollback logging
+
+- useFetchData: add withCredentials + Authorization header (fixes 401 on Orders/OrderDetail)
+- CartItems: log rollback failures; throw distinct error if rollback DELETEs fail
+- Orders: My Account sidebar, richer order cards (ORDER ID, date, payment method,
+  action buttons), client-side pagination
+- Navbar: Cart label with badge; dropdown adds Dashboard/Wishlist/Addresses/Profile Settings
+- Tests: fix Orders test wrapper (CartContext), fix getByText ambiguity, fix tab re-fetch assertion"
+   95  git push origin feature/pdf-receipt
+   96  git add src/pages/orders/Orders.jsx         src/hooks/useFetchData.js         src/pages/orders/orders.css         src/pages/cartItems/CartItems.jsx         src/components/navbar/Navbar.jsx         src/components/navbar/navbar.css         src/test/Orders.test.jsx
+   97  git commit -m "fix: pagination clamp + rename Download Invoice → View Invoice
+
+- Clamp safePage = Math.min(page, totalPages) so switching tabs/search
+  never produces an empty slice when page > totalPages
+- Rename card action from 'Download Invoice' to 'View Invoice' since the
+  PDF is generated on the detail page, not on navigation"
+   98  git push origin feature/pdf-receipt
+   99  git pull origin feature/pdf-receipt --rebase
+  100  git push origin feature/pdf-receipt
+  101  git stash
+  102  git pull origin feature/pdf-receipt --rebase
+  103  git stash po
+  104  git stash pop
+  105  git push origin feature/pdf-receipt
+  106  git checkout -b fix/usefetchdata-auth-scope
+  107  git add src/hooks/useFetchData.js
+  108  git commit -m "fix: scope withCredentials + auth headers to own backend only
+
+useFetchData was sending withCredentials: true on ALL requests, including
+the categories fetch to fakestoreapi.com. That third-party API does not
+allow credentialed CORS requests so the browser blocked it and the navbar
+lost its category links. Now auth config is only attached when the URL
+starts with VITE_BASE_URL."
+  109  git push origin fix/usefetchdata-auth-scope
+  110  git add src/hooks/useFetchData.js         src/test/useFetchData.test.jsx         src/pages/comingSoon/ComingSoon.jsx         src/pages/comingSoon/comingSoon.css         src/routes/AppRoutes.jsx
+  111  git commit -m "feat: Coming Soon page for stub routes + fix useFetchData origin check
+
+- Add ComingSoon page with per-route flavour text (Wishlist, Dashboard,
+  Addresses, Profile Settings) instead of a raw 404
+- Register /wishlist /dashboard /addresses /profile as protected routes
+  pointing to ComingSoon
+- useFetchData: replace startsWith with URL origin comparison to prevent
+  credential leak to prefix-colliding hosts (e.g. localhost:3001.attacker.com)
+- Tests: stub VITE_BASE_URL, add 4 auth-scoping cases including the
+  prefix-collision attack case"
+  112  git push origin fix/usefetchdata-auth-scope
+  113  npm test
+  114  history >> jb.txt

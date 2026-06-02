@@ -52,6 +52,11 @@ function Login() {
                 navigate(from, { replace: true });
             }
         } catch (err) {
+            // 403 unverified — redirect to verify-email page
+            if (err.response?.data?.status === 'unverified' && err.response?.data?.userId) {
+                navigate(`/verify-email/${err.response.data.userId}`);
+                return;
+            }
             const msg =
                 err.response?.data?.message || 'Login failed. Please check your credentials.';
             setServerErr(msg);
