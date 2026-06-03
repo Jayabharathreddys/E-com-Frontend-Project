@@ -8,6 +8,7 @@ import useAuth from '../../context/auth/useAuth.js';
 function Login() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [rememberMe, setRememberMe] = useState(false);
     const [errors, setErrors] = useState({});
     const [serverErr, setServerErr] = useState('');
     const [loading, setLoading] = useState(false);
@@ -61,9 +62,9 @@ function Login() {
             const data = resp.data;
             if (data.status === 'success') {
                 if (data.token) {
-                    localStorage.setItem('auth_token', data.token);
+                    sessionStorage.setItem('auth_token', data.token);
                 }
-                setAuth(data);
+                setAuth(data, rememberMe);
                 navigate(from, { replace: true });
             }
         } catch (err) {
@@ -163,6 +164,15 @@ function Login() {
                             <Link to="/forgot-password" className="link forgot-link">
                                 Forgot password?
                             </Link>
+                        </div>
+                        <div className="remember-me">
+                            <input
+                                type="checkbox"
+                                id="rememberMe"
+                                checked={rememberMe}
+                                onChange={(e) => setRememberMe(e.target.checked)}
+                            />
+                            <label htmlFor="rememberMe">Remember me</label>
                         </div>
                         <br />
                         <input type="submit" value="Login" />

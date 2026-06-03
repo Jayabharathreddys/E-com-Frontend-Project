@@ -5,8 +5,8 @@ const Unauthorized = () => {
     return (
         <div className="error-page">
             <div className="error-card">
-                <h1 className="error-code">401</h1>
-                <h2 className="error-title">Unauthorized</h2>
+                <h1 className="error-code">403</h1>
+                <h2 className="error-title">Forbidden</h2>
                 <p className="error-message">You don&apos;t have permission to access this page.</p>
                 <div className="error-actions">
                     <Link to="/login" className="error-btn primary">
