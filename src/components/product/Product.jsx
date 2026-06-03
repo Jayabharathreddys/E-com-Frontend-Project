@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import AddToCart from '../addToCart/AddToCart';
 import './product.css';
 
@@ -18,23 +19,36 @@ const StarRating = ({ rating }) => {
 
 const Product = ({ product }) => (
     <div className="product-item">
-        <img
-            className="product-image"
-            src={product.image}
-            alt={product.title}
-            onError={(e) => {
-                e.target.src = 'https://placehold.co/150x150?text=No+Image';
-            }}
-        />
+        <Link to={`/product/${product.id || product._id}`} className="product-image-link">
+            <img
+                className="product-image"
+                src={product.image}
+                alt={product.title}
+                onError={(e) => {
+                    e.target.src = 'https://placehold.co/150x150?text=No+Image';
+                }}
+            />
+        </Link>
         <div className="product-details">
-            <div className="product-title" title={product.title}>
+            <Link
+                to={`/product/${product.id || product._id}`}
+                className="product-title"
+                title={product.title}
+            >
                 {product.title}
-            </div>
+            </Link>
             <StarRating rating={product.averageRating} />
             <div className="buy-item">
                 <div className="product-price">Rs. {Number(product.price).toFixed(2)}</div>
                 <AddToCart product={product} />
             </div>
+            <Link
+                to={`/product/${product.id || product._id}`}
+                className="product-view-btn"
+                aria-label={`View details for ${product.title}`}
+            >
+                View Details →
+            </Link>
         </div>
     </div>
 );

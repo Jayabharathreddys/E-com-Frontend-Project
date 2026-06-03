@@ -1,7 +1,8 @@
 import { test, expect } from '@playwright/test';
 
 // Stable selector for a rendered product card (excludes spinners/empty-state elements)
-const PRODUCT_CARD = '.product-list .product-card, .product-card, [data-testid="product-card"]';
+// The product listing renders items with class .product-item inside .product-list
+const PRODUCT_CARD = '.product-list .product-item, .product-item';
 
 test.describe('Home — Product Listing', () => {
     test.beforeEach(async ({ page }) => {

@@ -72,3 +72,32 @@
     font-weight: bold;
     color: var(--color-text, #222);
 }
+
+/* Image is now wrapped in a link */
+.product-image-link {
+    display: block;
+    line-height: 0; /* remove gap below inline image */
+}
+
+/* Product title is a link */
+.product-title {
+    color: inherit;
+    text-decoration: none;
+}
+.product-title:hover {
+    text-decoration: underline;
+}
+
+/* View Details button */
+.product-view-btn {
+    display: block;
+    margin-top: 0.8rem;
+    font-size: 1.2rem;
+    color: #3d5a99;
+    font-weight: 600;
+    text-decoration: none;
+    text-align: right;
+}
+.product-view-btn:hover {
+    text-decoration: underline;
+}

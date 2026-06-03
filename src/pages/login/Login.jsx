@@ -61,7 +61,7 @@ function Login() {
             const data = resp.data;
             if (data.status === 'success') {
                 if (data.token) {
-                    sessionStorage.setItem('auth_token', data.token);
+                    localStorage.setItem('auth_token', data.token);
                 }
                 setAuth(data);
                 navigate(from, { replace: true });
