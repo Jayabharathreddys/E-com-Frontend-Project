@@ -36,3 +36,4 @@ Thumbs.db
 # Local dev logs / shell history dumps
 *.txt
 !*.md
+.env.e2e

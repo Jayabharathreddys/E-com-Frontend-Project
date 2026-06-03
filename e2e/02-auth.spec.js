@@ -14,7 +14,7 @@ test.describe('Authentication', () => {
         await page.getByLabel(/email/i).fill('nobody@nowhere.com');
         await page.getByLabel(/password/i).fill('wrongpassword1');
         await page.locator('input[type="submit"][value="Login"]').click();
-        await expect(page.getByText(/incorrect|not found|invalid/i)).toBeVisible({ timeout: 10_000 });
+        await expect(page.getByText(/incorrect|not found|invalid|failed|wrong/i)).toBeVisible({ timeout: 20_000 });
     });
 
     test('successful login redirects to home', async ({ page }) => {

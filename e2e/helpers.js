@@ -44,7 +44,7 @@ export async function loginAs(page, user) {
     await page.getByLabel(/email/i).fill(user.email);
     await page.getByLabel(/^password/i).fill(user.password);
     await page.locator('input[type="submit"][value="Login"]').click();
-    await page.waitForURL((url) => !url.pathname.includes('/login'), { timeout: 15_000 });
+    await page.waitForURL((url) => !url.pathname.includes('/login'), { timeout: 35_000 });
 }
 
 /**

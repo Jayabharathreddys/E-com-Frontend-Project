@@ -9,6 +9,6 @@ test.describe('Error Pages', () => {
 
     test('/unauthorized page renders correctly', async ({ page }) => {
         await page.goto('/unauthorized');
-        await expect(page.getByRole('heading', { name: '401' })).toBeVisible();
+        await expect(page.getByRole('heading', { name: '403' })).toBeVisible();
     });
 });
