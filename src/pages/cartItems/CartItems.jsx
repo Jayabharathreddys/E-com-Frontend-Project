@@ -119,66 +119,28 @@ function CartItems() {
             const loaded = await loadRazorpayScript();
             if (!loaded) throw new Error('Razorpay SDK failed to load. Check your connection.');
 
-            // Step 1: Create all bookings in parallel.
-            // Using allSettled so a single failure doesn't silently orphan the
-            // bookings that already succeeded — we cancel those explicitly.
             const authOpts = { withCredentials: true, headers: getAuthHeaders() };
-            const results = await Promise.allSettled(
-                cartItems.map(async (item) => {
-                    const productId = item._id || item.id;
-                    const priceAtThatTime = parseFloat(item.price) || 0;
-                    const resp = await axios.post(
-                        `${urlConfig.ORDER_URL}/${productId}`,
-                        { priceAtThatTime, quantity: item.quantity || 1 },
-                        authOpts
-                    );
-                    return { ...resp.data, productId };
-                })
+
+            // Step 1: Single checkout call — creates all bookings AND one combined
+            // Razorpay order so the payment modal shows the correct total.
+            const checkoutResp = await axios.post(
+                `${urlConfig.ORDER_URL}/checkout`,
+                {
+                    items: cartItems.map((item) => ({
+                        productId: item._id || item.id,
+                        priceAtThatTime: parseFloat(item.price) || 0,
+                        quantity: item.quantity || 1,
+                    })),
+                },
+                authOpts
             );
 
-            const failed = results.filter((r) => r.status === 'rejected');
-            const succeeded = results.filter((r) => r.status === 'fulfilled').map((r) => r.value);
-
-            if (failed.length > 0) {
-                // Cancel any bookings that did succeed so the backend doesn't
-                // hold orphaned records waiting for a payment that will never come.
-                const bookingsToCancel = succeeded.filter((b) => b.bookingId);
-                const cancelResults = await Promise.allSettled(
-                    bookingsToCancel.map((b) =>
-                        axios.delete(`${urlConfig.ORDER_URL}/${b.bookingId}`, authOpts)
-                    )
-                );
-                const rollbackFailed = cancelResults.some((r) => r.status === 'rejected');
-                cancelResults.forEach((result, i) => {
-                    if (result.status === 'rejected') {
-                        const booking = bookingsToCancel[i];
-                        console.error('Rollback failed for booking:', {
-                            bookingId: booking?.bookingId,
-                            productId: booking?.productId,
-                            reason: result.reason?.response?.data ?? result.reason?.message,
-                        });
-                    }
-                });
-                if (rollbackFailed) {
-                    throw new Error(
-                        'Some items were booked, but cleanup did not complete. Please check your orders before retrying.'
-                    );
-                }
-                const firstErr = failed[0].reason;
-                throw new Error(
-                    firstErr?.response?.data?.message ||
-                        firstErr?.message ||
-                        'One or more items could not be booked. Please try again.'
-                );
-            }
-
-            const bookings = succeeded;
-
-            // Use first booking's Razorpay order for the payment session;
-            // the combined amount covers all items.
-            const combinedAmount = bookings.reduce((sum, b) => sum + (b.amount || 0), 0);
-            const { currency, id: order_id } = bookings[0];
-            const bookingIds = bookings.map((b) => b.bookingId);
+            const {
+                id: order_id,
+                currency,
+                amount: combinedAmount,
+                bookingIds,
+            } = checkoutResp.data;
 
             // Snapshot cart items BEFORE clearing (needed for receipt)
             const itemsSnapshot = cartItems.map((item) => ({ ...item }));
