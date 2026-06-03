@@ -1,5 +1,10 @@
 // @ts-check
 import { defineConfig, devices } from '@playwright/test';
+import { config } from 'dotenv';
+import { existsSync } from 'fs';
+
+// Auto-load .env.e2e if present (copy from .env.e2e.example)
+if (existsSync('.env.e2e')) config({ path: '.env.e2e' });
 
 /**
  * JBE Commerce — Playwright e2e configuration

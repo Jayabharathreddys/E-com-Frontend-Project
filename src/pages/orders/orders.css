@@ -68,6 +68,18 @@
     border-left-color: #3d5a99;
 }
 
+.sidebar-admin {
+    color: #6a0dad;
+    font-weight: 700;
+    border-bottom: 1px solid #f0f0f0;
+    margin-bottom: 0.4rem;
+}
+
+.sidebar-admin:hover {
+    background: #f5eeff;
+    color: #6a0dad;
+}
+
 .sidebar-logout {
     color: #cc0000;
     border-top: 1px solid #f0f0f0;
