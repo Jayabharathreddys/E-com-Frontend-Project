@@ -28,6 +28,8 @@ const loadRazorpayScript = () =>
 function CartItems() {
     const { cart, clearCart } = useCart();
     const { user } = useAuth();
+    // Normalise the nested auth shape (user.user.name vs user.name) once here
+    const authUser = user?.user ?? user ?? {};
     const [paymentErr, setPaymentErr] = useState('');
     const [processing, setProcessing] = useState(false);
     const [success, setSuccess] = useState(false);
@@ -119,66 +121,39 @@ function CartItems() {
             const loaded = await loadRazorpayScript();
             if (!loaded) throw new Error('Razorpay SDK failed to load. Check your connection.');
 
-            // Step 1: Create all bookings in parallel.
-            // Using allSettled so a single failure doesn't silently orphan the
-            // bookings that already succeeded — we cancel those explicitly.
             const authOpts = { withCredentials: true, headers: getAuthHeaders() };
-            const results = await Promise.allSettled(
-                cartItems.map(async (item) => {
-                    const productId = item._id || item.id;
-                    const priceAtThatTime = parseFloat(item.price) || 0;
-                    const resp = await axios.post(
-                        `${urlConfig.ORDER_URL}/${productId}`,
-                        { priceAtThatTime, quantity: item.quantity || 1 },
-                        authOpts
-                    );
-                    return { ...resp.data, productId };
-                })
+
+            // Step 1: Single checkout call — creates all bookings AND one combined
+            // Razorpay order so the payment modal shows the correct total.
+            const checkoutResp = await axios.post(
+                `${urlConfig.ORDER_URL}/checkout`,
+                {
+                    items: cartItems.map((item) => ({
+                        productId: item._id || item.id,
+                        priceAtThatTime: parseFloat(item.price) || 0,
+                        quantity: item.quantity || 1,
+                    })),
+                },
+                authOpts
             );
 
-            const failed = results.filter((r) => r.status === 'rejected');
-            const succeeded = results.filter((r) => r.status === 'fulfilled').map((r) => r.value);
+            const {
+                id: order_id,
+                currency,
+                amount: combinedAmount,
+                bookingIds,
+            } = checkoutResp.data;
 
-            if (failed.length > 0) {
-                // Cancel any bookings that did succeed so the backend doesn't
-                // hold orphaned records waiting for a payment that will never come.
-                const bookingsToCancel = succeeded.filter((b) => b.bookingId);
-                const cancelResults = await Promise.allSettled(
-                    bookingsToCancel.map((b) =>
-                        axios.delete(`${urlConfig.ORDER_URL}/${b.bookingId}`, authOpts)
-                    )
-                );
-                const rollbackFailed = cancelResults.some((r) => r.status === 'rejected');
-                cancelResults.forEach((result, i) => {
-                    if (result.status === 'rejected') {
-                        const booking = bookingsToCancel[i];
-                        console.error('Rollback failed for booking:', {
-                            bookingId: booking?.bookingId,
-                            productId: booking?.productId,
-                            reason: result.reason?.response?.data ?? result.reason?.message,
-                        });
-                    }
-                });
-                if (rollbackFailed) {
-                    throw new Error(
-                        'Some items were booked, but cleanup did not complete. Please check your orders before retrying.'
-                    );
-                }
-                const firstErr = failed[0].reason;
-                throw new Error(
-                    firstErr?.response?.data?.message ||
-                        firstErr?.message ||
-                        'One or more items could not be booked. Please try again.'
-                );
+            if (
+                !order_id ||
+                !currency ||
+                typeof combinedAmount !== 'number' ||
+                combinedAmount <= 0 ||
+                !Array.isArray(bookingIds) ||
+                bookingIds.length === 0
+            ) {
+                throw new Error('Checkout returned an invalid payment payload.');
             }
-
-            const bookings = succeeded;
-
-            // Use first booking's Razorpay order for the payment session;
-            // the combined amount covers all items.
-            const combinedAmount = bookings.reduce((sum, b) => sum + (b.amount || 0), 0);
-            const { currency, id: order_id } = bookings[0];
-            const bookingIds = bookings.map((b) => b.bookingId);
 
             // Snapshot cart items BEFORE clearing (needed for receipt)
             const itemsSnapshot = cartItems.map((item) => ({ ...item }));
@@ -210,9 +185,8 @@ function CartItems() {
                             const receipt = {
                                 orderId: paymentResponse.razorpay_order_id,
                                 paymentId: paymentResponse.razorpay_payment_id,
-                                customerName: user?.user?.name || user?.name || 'Customer',
-                                // Fix CR#2: mirror the same nested fallback used by customerName
-                                customerEmail: user?.user?.email || user?.email || '',
+                                customerName: authUser.name || 'Customer',
+                                customerEmail: authUser.email || '',
                                 items: itemsSnapshot,
                                 totalAmount: combinedAmount / 100, // paise → rupees
                                 date: new Date().toISOString(),
@@ -235,8 +209,8 @@ function CartItems() {
                         ondismiss: () => reject(new Error('__CANCELLED__')),
                     },
                     prefill: {
-                        name: user?.name || '',
-                        email: user?.email || '',
+                        name: authUser.name || '',
+                        email: authUser.email || '',
                     },
                     theme: { color: '#3d5a99' },
                 };

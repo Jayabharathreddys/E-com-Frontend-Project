@@ -74,7 +74,11 @@ const Navbar = ({ categories, isLoading }) => {
                             onClick={() => setDropdownOpen((prev) => !prev)}
                             aria-haspopup="true"
                             aria-expanded={dropdownOpen}
-                            aria-label="Account menu"
+                            aria-label={
+                                displayName
+                                    ? `Hi, ${displayName.split(' ')[0]}! Account menu`
+                                    : 'Account menu'
+                            }
                         >
                             <FaUserCircle className="nav-account-icon" />
                             <span className="nav-account-name">

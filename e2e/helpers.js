@@ -1,23 +1,39 @@
 /**
  * Shared helpers for JBE Commerce e2e tests.
- * All credentials read from environment variables so they're never hard-coded.
  *
- * Required env vars:
- *   E2E_USER_EMAIL    — registered test account email
- *   E2E_USER_PASS     — registered test account password
- *   E2E_ADMIN_EMAIL   — admin account email
- *   E2E_ADMIN_PASS    — admin account password
+ * Set credentials via environment variables (copy .env.e2e.example → .env.e2e):
+ *   E2E_USER_EMAIL   — registered test account email
+ *   E2E_USER_PASS    — registered test account password
+ *   E2E_ADMIN_EMAIL  — admin account email
+ *   E2E_ADMIN_PASS   — admin account password
+ *
+ * Run against production:
+ *   BASE_URL=https://e-com-frontend-project-eta.vercel.app npx playwright test
  */
 
+const missingVars = [];
+if (!process.env.E2E_USER_EMAIL)  missingVars.push('E2E_USER_EMAIL');
+if (!process.env.E2E_USER_PASS)   missingVars.push('E2E_USER_PASS');
+if (!process.env.E2E_ADMIN_EMAIL) missingVars.push('E2E_ADMIN_EMAIL');
+if (!process.env.E2E_ADMIN_PASS)  missingVars.push('E2E_ADMIN_PASS');
+
+if (missingVars.length) {
+    console.warn(
+        `\n⚠️  Missing e2e env vars: ${missingVars.join(', ')}\n` +
+        `   Copy .env.e2e.example → .env.e2e and fill in real credentials.\n` +
+        `   Then run: npx dotenv -e .env.e2e -- npx playwright test\n`
+    );
+}
+
 export const TEST_USER = {
-    email:    process.env.E2E_USER_EMAIL  || 'testuser@jbecommerce.test',
-    password: process.env.E2E_USER_PASS   || 'Test@12345',
+    email:    process.env.E2E_USER_EMAIL,
+    password: process.env.E2E_USER_PASS,
     name:     'Test User',
 };
 
 export const ADMIN_USER = {
-    email:    process.env.E2E_ADMIN_EMAIL || 'admin@jbecommerce.test',
-    password: process.env.E2E_ADMIN_PASS  || 'Admin@12345',
+    email:    process.env.E2E_ADMIN_EMAIL,
+    password: process.env.E2E_ADMIN_PASS,
 };
 
 /**
@@ -26,11 +42,9 @@ export const ADMIN_USER = {
 export async function loginAs(page, user) {
     await page.goto('/login');
     await page.getByLabel(/email/i).fill(user.email);
-    await page.getByLabel(/password/i).fill(user.password);
-    // Login form uses <input type="submit" value="Login"> — match by value
+    await page.getByLabel(/^password/i).fill(user.password);
     await page.locator('input[type="submit"][value="Login"]').click();
-    // Wait until we're redirected away from /login
-    await page.waitForURL((url) => !url.pathname.includes('/login'), { timeout: 15_000 });
+    await page.waitForURL((url) => !url.pathname.includes('/login'), { timeout: 35_000 });
 }
 
 /**

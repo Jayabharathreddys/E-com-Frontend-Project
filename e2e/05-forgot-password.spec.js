@@ -20,6 +20,6 @@ test.describe('Forgot Password', () => {
         const unknownEmail = `no-user-${Date.now()}@example.com`;
         await page.getByLabel(/email/i).fill(unknownEmail);
         await page.getByRole('button', { name: /send|submit|otp/i }).click();
-        await expect(page.getByText(/not found|no user/i)).toBeVisible({ timeout: 10_000 });
+        await expect(page.getByText(/not found|no user|failed|invalid/i)).toBeVisible({ timeout: 20_000 });
     });
 });

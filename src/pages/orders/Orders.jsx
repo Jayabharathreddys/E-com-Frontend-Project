@@ -20,13 +20,20 @@ const ITEMS_PER_PAGE = 5;
 
 function AccountSidebar() {
     const navigate = useNavigate();
-    const { logout } = useAuth();
+    const { user, logout } = useAuth();
     const { clearCart } = useCart();
+
+    const isAdmin = user?.user?.role === 'admin' || user?.role === 'admin';
 
     return (
         <aside className="account-sidebar">
             <h3 className="account-sidebar-title">My Account</h3>
             <nav className="account-sidebar-nav">
+                {isAdmin && (
+                    <NavLink to="/admin" className="sidebar-link sidebar-admin">
+                        <span>⚡</span> Admin Panel
+                    </NavLink>
+                )}
                 <NavLink to="/dashboard" className="sidebar-link">
                     <span>🏠</span> Dashboard
                 </NavLink>

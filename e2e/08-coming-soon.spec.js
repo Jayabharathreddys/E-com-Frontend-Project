@@ -14,7 +14,7 @@ test.describe('Coming Soon pages', () => {
             // Should NOT show the 404 error page
             await expect(page.getByText(/page not found/i)).not.toBeVisible();
             // Should show a coming-soon indicator
-            await expect(page.getByText(/coming soon|under development|version 2/i)).toBeVisible({ timeout: 10_000 });
+            await expect(page.getByText(/coming soon|under development|version 2/i).first()).toBeVisible({ timeout: 10_000 });
         });
     }
 
