@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import useAuth from '../../context/auth/useAuth';
 import { useCart } from '../../context/cart/useCart';
@@ -74,67 +74,82 @@ function StatusBadge({ status }) {
     return <span className={`order-badge ${badge.cls}`}>{badge.text}</span>;
 }
 
-function OrderCard({ order }) {
-    const product = order.product || {};
-    const image = product.productImages?.[0] || 'https://placehold.co/80x80?text=No+Image';
-    const amount = ((order.priceAtThatTime || 0) * (order.quantity || 1)).toFixed(2);
-    const orderId = order.payment_order_id || order._id || '—';
-    const isConfirmed = order.status === 'confirmed' || order.status === 'success';
-    const isFailed = order.status === 'failed';
+/**
+ * Renders one card per unique Razorpay order (grouped by payment_order_id).
+ * Each group may contain multiple booking records (one per cart item).
+ */
+function OrderCard({ group }) {
+    const { paymentOrderId, items, totalAmount, status, createdAt, firstBookingId } = group;
+    const isConfirmed = status === 'confirmed' || status === 'success';
+    const isFailed = status === 'failed';
 
     return (
         <div className="order-card">
             <div className="order-card-header">
                 <div className="order-card-id-block">
                     <span className="order-id-label">ORDER ID</span>
-                    <span className="order-id-value">{orderId}</span>
+                    <span className="order-id-value">{paymentOrderId}</span>
                 </div>
                 <div className="order-card-meta">
-                    <span className="order-date">{formatDate(order.createdAt, 'datetime')}</span>
+                    <span className="order-date">{formatDate(createdAt, 'datetime')}</span>
                     <span className="order-items-count">
-                        {order.quantity || 1} Item{(order.quantity || 1) > 1 ? 's' : ''}
+                        {items.length} Item{items.length !== 1 ? 's' : ''}
                     </span>
                 </div>
             </div>
 
-            <div className="order-card-body">
-                <img
-                    src={image}
-                    alt={product.name || 'Product'}
-                    className="order-product-img"
-                    onError={(e) => {
-                        e.target.src = 'https://placehold.co/80x80?text=No+Image';
-                    }}
-                />
-                <div className="order-product-info">
-                    <p className="order-product-name">{product.name || '—'}</p>
-                    <p className="order-product-meta">Qty: {order.quantity || 1}</p>
-                </div>
+            {/* List every item in this order */}
+            {items.map((order) => {
+                const product = order.product || {};
+                const image =
+                    product.productImages?.[0] || 'https://placehold.co/80x80?text=No+Image';
+                const lineTotal = ((order.priceAtThatTime || 0) * (order.quantity || 1)).toFixed(2);
 
-                <div className="order-amount-col">
-                    <div className="order-amount-block">
-                        <span className="order-amount-label">Total Amount</span>
-                        <span className="order-total">Rs. {amount}</span>
+                return (
+                    <div key={order._id} className="order-card-body">
+                        <img
+                            src={image}
+                            alt={product.name || 'Product'}
+                            className="order-product-img"
+                            onError={(e) => {
+                                e.target.src = 'https://placehold.co/80x80?text=No+Image';
+                            }}
+                        />
+                        <div className="order-product-info">
+                            <p className="order-product-name">{product.name || '—'}</p>
+                            <p className="order-product-meta">Qty: {order.quantity || 1}</p>
+                        </div>
+                        <div className="order-amount-col">
+                            <span className="order-total">Rs. {lineTotal}</span>
+                        </div>
                     </div>
-                    <div className="order-payment-method">
-                        <span className="order-amount-label">Payment Method</span>
-                        <span className="order-payment-value">Razorpay</span>
-                    </div>
+                );
+            })}
+
+            {/* Footer row: total + status + actions */}
+            <div className="order-card-footer">
+                <div className="order-amount-block">
+                    <span className="order-amount-label">Total Amount</span>
+                    <span className="order-total">Rs. {totalAmount.toFixed(2)}</span>
+                </div>
+                <div className="order-payment-method">
+                    <span className="order-amount-label">Payment Method</span>
+                    <span className="order-payment-value">Razorpay</span>
                 </div>
 
                 <div className="order-status-col">
-                    <StatusBadge status={order.status} />
+                    <StatusBadge status={status} />
                     <div className="order-card-actions">
                         <Link
-                            to={`/orders/${order._id}`}
+                            to={`/orders/${firstBookingId}`}
                             className="order-btn order-btn-outline"
-                            aria-label={`View details for order ${order._id}`}
+                            aria-label={`View details for order ${paymentOrderId}`}
                         >
                             View Details
                         </Link>
                         {isConfirmed && (
                             <Link
-                                to={`/orders/${order._id}`}
+                                to={`/orders/${firstBookingId}`}
                                 className="order-btn order-btn-secondary"
                             >
                                 🧾 View Invoice
@@ -169,6 +184,35 @@ function EmptyOrders({ tab, search }) {
     );
 }
 
+/**
+ * Group flat booking records by their Razorpay payment_order_id.
+ * Returns an array of groups sorted newest-first, where each group has:
+ *   paymentOrderId, items[], totalAmount, status, createdAt, firstBookingId
+ */
+function groupOrdersByPaymentId(orders) {
+    const map = new Map();
+
+    orders.forEach((order) => {
+        const key = order.payment_order_id || order._id;
+        if (!map.has(key)) {
+            map.set(key, {
+                paymentOrderId: key,
+                items: [],
+                totalAmount: 0,
+                status: order.status,
+                createdAt: order.createdAt,
+                payment_id: order.payment_id,
+                firstBookingId: order._id,
+            });
+        }
+        const group = map.get(key);
+        group.items.push(order);
+        group.totalAmount += (order.priceAtThatTime || 0) * (order.quantity || 1);
+    });
+
+    return Array.from(map.values());
+}
+
 export default function Orders() {
     const { user } = useAuth();
     const [activeTab, setActiveTab] = useState('all');
@@ -181,17 +225,23 @@ export default function Orders() {
             : `${urlConfig.MY_ORDERS_URL}?status=${activeTab}`;
 
     const { data, isLoading, error } = useFetchData(url, { data: [] });
-    const allOrders = data?.data || [];
 
+    // Group flat booking records into one entry per Razorpay order.
+    // allOrders is derived inside useMemo to avoid a stale [] reference
+    // triggering needless re-computations on every render.
+    const groupedOrders = useMemo(() => groupOrdersByPaymentId(data?.data || []), [data]);
+
+    // Search across payment_order_id and any item's product name
     const filtered = search.trim()
-        ? allOrders.filter((o) => {
+        ? groupedOrders.filter((g) => {
               const q = search.toLowerCase();
-              return (
-                  (o.payment_order_id || o._id || '').toLowerCase().includes(q) ||
+              const matchesOrderId = (g.paymentOrderId || '').toLowerCase().includes(q);
+              const matchesProduct = g.items.some((o) =>
                   (o.product?.name || '').toLowerCase().includes(q)
               );
+              return matchesOrderId || matchesProduct;
           })
-        : allOrders;
+        : groupedOrders;
 
     const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
     const safePage = Math.min(page, totalPages);
@@ -265,8 +315,8 @@ export default function Orders() {
                 {!isLoading && !error && orders.length > 0 && (
                     <>
                         <div className="orders-list">
-                            {orders.map((order) => (
-                                <OrderCard key={order._id} order={order} />
+                            {orders.map((group) => (
+                                <OrderCard key={group.paymentOrderId} group={group} />
                             ))}
                         </div>
 
