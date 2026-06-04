@@ -28,6 +28,8 @@ const loadRazorpayScript = () =>
 function CartItems() {
     const { cart, clearCart } = useCart();
     const { user } = useAuth();
+    // Normalise the nested auth shape (user.user.name vs user.name) once here
+    const authUser = user?.user ?? user ?? {};
     const [paymentErr, setPaymentErr] = useState('');
     const [processing, setProcessing] = useState(false);
     const [success, setSuccess] = useState(false);
@@ -142,6 +144,17 @@ function CartItems() {
                 bookingIds,
             } = checkoutResp.data;
 
+            if (
+                !order_id ||
+                !currency ||
+                typeof combinedAmount !== 'number' ||
+                combinedAmount <= 0 ||
+                !Array.isArray(bookingIds) ||
+                bookingIds.length === 0
+            ) {
+                throw new Error('Checkout returned an invalid payment payload.');
+            }
+
             // Snapshot cart items BEFORE clearing (needed for receipt)
             const itemsSnapshot = cartItems.map((item) => ({ ...item }));
 
@@ -172,9 +185,8 @@ function CartItems() {
                             const receipt = {
                                 orderId: paymentResponse.razorpay_order_id,
                                 paymentId: paymentResponse.razorpay_payment_id,
-                                customerName: user?.user?.name || user?.name || 'Customer',
-                                // Fix CR#2: mirror the same nested fallback used by customerName
-                                customerEmail: user?.user?.email || user?.email || '',
+                                customerName: authUser.name || 'Customer',
+                                customerEmail: authUser.email || '',
                                 items: itemsSnapshot,
                                 totalAmount: combinedAmount / 100, // paise → rupees
                                 date: new Date().toISOString(),
@@ -197,8 +209,8 @@ function CartItems() {
                         ondismiss: () => reject(new Error('__CANCELLED__')),
                     },
                     prefill: {
-                        name: user?.name || '',
-                        email: user?.email || '',
+                        name: authUser.name || '',
+                        email: authUser.email || '',
                     },
                     theme: { color: '#3d5a99' },
                 };
