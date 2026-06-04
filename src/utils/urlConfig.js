@@ -17,6 +17,7 @@ const urlConfig = {
     ORDER_URL: BASE_URL + '/api/booking',
     MY_ORDERS_URL: BASE_URL + '/api/booking/my-orders',
     ORDER_DETAIL_URL: BASE_URL + '/api/booking/detail',
+    ORDER_BY_PAYMENT_ORDER_URL: BASE_URL + '/api/booking/by-payment-order',
     // Reviews
     REVIEW_URL: BASE_URL + '/api/review',
     // Admin

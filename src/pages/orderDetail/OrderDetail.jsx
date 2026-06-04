@@ -7,6 +7,7 @@ import { STATUS_BADGE, formatDate } from '../../utils/orderUtils';
 import useAuth from '../../context/auth/useAuth';
 import Loader from '../../components/loader';
 import { useState } from 'react';
+import axios from 'axios';
 import './orderDetail.css';
 
 // Status timeline — steps visible for every order
@@ -59,19 +60,48 @@ export default function OrderDetail() {
         setDownloadErr('');
         setDownloading(true);
         try {
+            // Fetch all bookings that share the same Razorpay order ID so the
+            // receipt matches what the user actually paid for in that session.
+            const paymentOrderId = order.payment_order_id;
+            let allItems = [
+                {
+                    title: order.product?.name || 'Product',
+                    price: order.priceAtThatTime,
+                    quantity: order.quantity || 1,
+                },
+            ];
+            let grandTotal = order.priceAtThatTime * (order.quantity || 1);
+
+            if (paymentOrderId) {
+                try {
+                    const resp = await axios.get(
+                        `${urlConfig.ORDER_BY_PAYMENT_ORDER_URL}/${paymentOrderId}`,
+                        { withCredentials: true }
+                    );
+                    const siblings = resp.data?.data;
+                    if (Array.isArray(siblings) && siblings.length > 0) {
+                        allItems = siblings.map((b) => ({
+                            title: b.product?.name || 'Product',
+                            price: b.priceAtThatTime,
+                            quantity: b.quantity || 1,
+                        }));
+                        grandTotal = siblings.reduce(
+                            (sum, b) => sum + (b.priceAtThatTime || 0) * (b.quantity || 1),
+                            0
+                        );
+                    }
+                } catch {
+                    // Fall back to the single item already set above
+                }
+            }
+
             await downloadReceipt({
-                orderId: order.payment_order_id || order._id,
+                orderId: paymentOrderId || order._id,
                 paymentId: order.payment_id || '',
                 customerName: user?.user?.name || user?.name || 'Customer',
                 customerEmail: user?.user?.email || user?.email || '',
-                items: [
-                    {
-                        title: order.product?.name || 'Product',
-                        price: order.priceAtThatTime,
-                        quantity: order.quantity || 1,
-                    },
-                ],
-                totalAmount: order.priceAtThatTime * (order.quantity || 1),
+                items: allItems,
+                totalAmount: grandTotal,
                 date: order.createdAt || new Date().toISOString(),
             });
         } catch {
