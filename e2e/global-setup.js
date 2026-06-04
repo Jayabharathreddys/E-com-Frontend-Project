@@ -18,8 +18,9 @@ export default async function globalSetup() {
     console.log('\n⏳  Warming up Render backend (cold-start can take ~30 s)...');
     const start = Date.now();
 
+    let browser;
     try {
-        const browser = await chromium.launch();
+        browser = await chromium.launch();
         const page = await browser.newPage();
 
         await page.goto(BACKEND_PING_URL, {
@@ -27,10 +28,11 @@ export default async function globalSetup() {
             timeout: WARMUP_TIMEOUT_MS,
         });
 
-        await browser.close();
         console.log(`✅  Backend warm (${((Date.now() - start) / 1000).toFixed(1)} s)\n`);
     } catch (err) {
         // Non-fatal — tests will still run; individual loginAs timeouts may occur
         console.warn(`⚠️  Backend warmup failed: ${err.message}\n`);
+    } finally {
+        await browser?.close();
     }
 }

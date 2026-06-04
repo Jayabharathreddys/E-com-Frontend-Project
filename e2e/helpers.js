@@ -40,6 +40,12 @@ export const ADMIN_USER = {
  * Log in as the given user via the UI and wait for the home page to load.
  */
 export async function loginAs(page, user) {
+    if (!user?.email || !user?.password) {
+        throw new Error(
+            'Missing e2e credentials for login. ' +
+            'Set E2E_USER_EMAIL/E2E_USER_PASS (or admin vars) in .env.e2e.'
+        );
+    }
     await page.goto('/login');
     await page.getByLabel(/email/i).fill(user.email);
     await page.getByLabel(/^password/i).fill(user.password);

@@ -210,7 +210,9 @@ function groupOrdersByPaymentId(orders) {
         group.totalAmount += (order.priceAtThatTime || 0) * (order.quantity || 1);
     });
 
-    return Array.from(map.values());
+    return Array.from(map.values()).sort(
+        (a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0)
+    );
 }
 
 export default function Orders() {
@@ -234,7 +236,7 @@ export default function Orders() {
     // Search across payment_order_id and any item's product name
     const filtered = search.trim()
         ? groupedOrders.filter((g) => {
-              const q = search.toLowerCase();
+              const q = search.trim().toLowerCase();
               const matchesOrderId = (g.paymentOrderId || '').toLowerCase().includes(q);
               const matchesProduct = g.items.some((o) =>
                   (o.product?.name || '').toLowerCase().includes(q)
